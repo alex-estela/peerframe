@@ -1,0 +1,268 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"title": "PeerFrame API",
+		"version": "0.0.2",
+		"description": "Local PeerFrame API."
+	},
+	"basePath": "/api",
+	"paths": {
+		"/providers": {
+			"get": {
+				"tags": [
+					"Provider"
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation.",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/Provider"
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": [
+					"Provider"
+				],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/Provider"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation.",
+						"schema": {
+							"$ref": "#/definitions/Provider"
+						}
+					}
+				}
+			}
+		},
+		"/providers/{providerId}": {
+			"put": {
+				"tags": [
+					"Provider"
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "providerId",
+						"type": "string",
+						"required": true
+					},
+					{
+						"in": "body",
+						"name": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/Provider"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation.",
+						"schema": {
+							"$ref": "#/definitions/Provider"
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": [
+					"Provider"
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "providerId",
+						"type": "string",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation."
+					}
+				}
+			}
+		},
+		"/medias": {
+			"get": {
+				"tags": [
+					"Media"
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "random",
+						"type": "boolean",
+						"required": false
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation.",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/Media"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/medias/{mediaId}": {
+			"get": {
+				"tags": [
+					"Media"
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "mediaId",
+						"type": "string",
+						"required": true
+					}
+				],
+				"produces": [
+					"application/json",
+					"image/jpeg",
+					"image/gif",
+					"image/png"
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation.",
+						"schema": {
+							"$ref": "#/definitions/Media"
+						}
+					}
+				}
+			}
+		},
+		"/tools/ping": {
+			"get": {
+				"tags": [
+					"Tooling"
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation.",
+						"schema": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		}
+	},
+	"definitions": {
+		"Provider": {
+			"description": "Generic provider resource.",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Unique Provider UUID."
+				},
+				"providerType": {
+					"type": "string",
+					"description": "Provider type (Smugmug, GooglePhotos, etc).",
+					"enum": [
+						"SmugmugProvider"
+					]
+				},
+				"name": {
+					"type": "string",
+					"description": "Name of the provider resource."
+				}
+			},
+			"discriminator": "providerType",
+			"required": [
+				"providerType",
+				"name"
+			]
+		},
+		"SmugmugProvider": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/Provider"
+				},
+				{
+					"type": "object",
+					"description": "Smugmug provider resource.",
+					"properties": {
+						"consumerKey": {
+							"type": "string",
+							"description": "Consumer API key generated from the Smugmug account (available in Me > API Keys)."
+						},
+						"consumerSecret": {
+							"type": "string",
+							"description": "Consumer API secret generated from the Smugmug account (available in Me > API Keys)."
+						},
+						"accessToken": {
+							"type": "string",
+							"description": "Permanent access token generated from the Smugmug account (available in Privacy > Authorized Services)."
+						},
+						"accessTokenSecret": {
+							"type": "string",
+							"description": "Permanent access token secret generated from the Smugmug account (available in Privacy > Authorized Services)."
+						},
+						"albumId": {
+							"type": "string",
+							"description": "Id of the album to download in the Smugmug account."
+						}
+					},
+					"required": [
+						"consumerKey",
+						"consumerSecret",
+						"accessToken",
+						"accessTokenSecret",
+						"albumId"
+					]
+				}
+			]
+		},
+		"Media": {
+			"description": "Media resource (image, video, etc).",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Unique Media UUID."
+				},
+				"mediaType": {
+					"type": "string",
+					"description": "Media type (gif, jpg, png, etc).",
+					"enum": [
+						"gif",
+						"jpg",
+						"png"
+					]
+				},
+				"width": {
+					"type": "integer",
+					"description": "Media pixel width (after resize)."
+				},
+				"height": {
+					"type": "integer",
+					"description": "Media pixel height (after resize)."
+				},
+				"created": {
+					"type": "string",
+					"description": "Original date of creation in ISO 8601 format."
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,47 @@
+/***********************************************************
+ *  PeerFrame by Alex Estela
+ **********************************************************/
+ 
+body {
+	padding: 0px;
+	margin: 0px;
+	background-color: #000;
+	overflow: hidden;
+}
+.mediaContainer {
+	width:100%; 
+	align: center; 
+	margin: auto; 
+	text-align: center;
+}
+.mediaImg {
+	align: center;
+	margin: auto;
+	text-align: center;
+}
+.mediaTooltip {
+	position: absolute;
+	z-index: 10;
+	top: 0px;
+	left: 0px;
+	background-color: #000;
+	color: #fff;
+	font-family: Arial;
+	font-size: 16px;
+	padding: 2px;
+}
+.loadingContainer {
+	width: 100%;
+	min-height: 900px;
+	background: url(hourglass.jpg) no-repeat center center;
+	align: center;
+	margin: auto;
+	text-align: center;
+	color: #fff;
+	font-weight: bold;
+	font-size: 40pt;
+	margin-top: 80px;
+}
+.owl-item.loading{
+	background: none;
+}
