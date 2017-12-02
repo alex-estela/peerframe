@@ -3,6 +3,9 @@ package fr.estela.peerframe.device.entity;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import fr.estela.peerframe.device.service.DownloadManager;
+import fr.estela.peerframe.device.service.SmugmugDownloadManager;
+
 @Entity
 @DiscriminatorValue("SmugMugProvider")
 public class SmugmugProviderEntity extends ProviderEntity {
@@ -51,5 +54,9 @@ public class SmugmugProviderEntity extends ProviderEntity {
     
     public void setAccessTokenSecret(String accessTokenSecret) {
         this.accessTokenSecret = accessTokenSecret;
+    }
+    
+    public DownloadManager getDownloadManagerInstance() throws Exception {
+        return new SmugmugDownloadManager();
     }
 }

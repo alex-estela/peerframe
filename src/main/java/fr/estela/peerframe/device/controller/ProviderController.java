@@ -27,7 +27,7 @@ import fr.estela.peerframe.api.model.SmugmugProvider;
 @Transactional
 public class ProviderController extends AbstractController {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ProviderController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProviderController.class);
     
     @Autowired
     private ProviderRepository providerRepository;

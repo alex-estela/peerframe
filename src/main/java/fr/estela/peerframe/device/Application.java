@@ -42,6 +42,10 @@ public class Application {
         SpringApplication.run(Application.class, args);     
     }
     
+    public static String getTempFolder() {
+        return System.getProperty("user.home").replace("\\", "/") + "/peerframe/tmp/";
+    }
+    
     @Autowired
     private Environment env;
     
