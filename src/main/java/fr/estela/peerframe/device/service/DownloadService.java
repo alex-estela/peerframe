@@ -29,7 +29,7 @@ public class DownloadService {
         List<ProviderEntity> providerEntities = providerRepository.findAll();
         for (final ProviderEntity providerEntity : providerEntities) {            
             try {
-                LOGGER.info("Download initiated for: " + providerEntity);
+                LOGGER.info("Download initiated for: {}", providerEntity);
                 DownloadManager manager = providerEntity.getDownloadManagerInstance();
                 manager.downloadAndSaveMedias(providerEntity, providerRepository, mediaRepository);
             }

@@ -20,9 +20,10 @@ public class ParsingUtil {
 
     public static void printPrettyJson(Logger logger, String json) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            logger
-                .debug(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mapper.readValue(json, Object.class)));
+            if (logger.isDebugEnabled()) {
+                ObjectMapper mapper = new ObjectMapper();
+                logger.debug(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mapper.readValue(json, Object.class)));                
+            }
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -94,7 +94,7 @@ public class ProviderController extends AbstractController {
         ProviderEntity providerEntity = toProviderEntity(provider);
         providerEntity = providerRepository.save(providerEntity);
         provider.setId(providerEntity.getId().toString());
-        LOGGER.info("Created provider: " + providerEntity);
+        LOGGER.info("Created provider: {}", providerEntity);
         
         return populateCreatedResponse(provider);
     }
@@ -107,7 +107,7 @@ public class ProviderController extends AbstractController {
         ProviderEntity providerEntity = toProviderEntity(provider);
         providerEntity.setId(UUID.fromString(providerId));
         providerRepository.save(providerEntity);
-        LOGGER.info("Updated provider: " + providerEntity);
+        LOGGER.info("Updated provider: {}", providerEntity);
 
         return populateRetrievedResponse(provider);
     }
@@ -116,7 +116,7 @@ public class ProviderController extends AbstractController {
     public ResponseEntity<Void> providersProviderIdDelete(@PathVariable("providerId") String providerId) {
 
         providerRepository.delete(UUID.fromString(providerId));
-        LOGGER.info("Deleted provider with id: " + providerId);
+        LOGGER.info("Deleted provider with id: {}", providerId);
 
         return populateDeletedResponse();
     }

@@ -43,7 +43,7 @@ public class SmugmugDownloadManager implements DownloadManager {
     
     private MediaTypeEnum getMediaTypeFromJsonValue(String value) {
         if (value.equals("jpg") || value.equals("jpeg")) return MediaTypeEnum.JPG;
-        LOGGER.warn("Unknown media content type: " + value);
+        LOGGER.warn("Unknown media content type: {}", value);
         return null;
     }
     
@@ -57,11 +57,11 @@ public class SmugmugDownloadManager implements DownloadManager {
 
         SmugmugProviderEntity smugmugProviderEntity = (SmugmugProviderEntity) providerEntity;
 
-        LOGGER.debug("Smugmug consumer key: " + smugmugProviderEntity.getConsumerKey());
-        LOGGER.debug("Smugmug consumer secret: " + smugmugProviderEntity.getConsumerSecret());
-        LOGGER.debug("Smugmug access token: " + smugmugProviderEntity.getAccessToken());
-        LOGGER.debug("Smugmug access token secret: " + smugmugProviderEntity.getAccessTokenSecret());
-        LOGGER.debug("Smugmug album: " + smugmugProviderEntity.getAlbumId());
+        LOGGER.debug("Smugmug consumer key: {}", smugmugProviderEntity.getConsumerKey());
+        LOGGER.debug("Smugmug consumer secret: {}", smugmugProviderEntity.getConsumerSecret());
+        LOGGER.debug("Smugmug access token: {}", smugmugProviderEntity.getAccessToken());
+        LOGGER.debug("Smugmug access token secret: {}", smugmugProviderEntity.getAccessTokenSecret());
+        LOGGER.debug("Smugmug album: {}", smugmugProviderEntity.getAlbumId());
         
         OAuthHmacSigner signer = new OAuthHmacSigner();
         signer.clientSharedSecret = smugmugProviderEntity.getConsumerSecret();
@@ -77,25 +77,27 @@ public class SmugmugDownloadManager implements DownloadManager {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept("application/json");
 
-        int currentPageIndex = 1;
+        int currentStartIndex = 1;
         int totalParsedCount = 0;
         int totalIgnoredCount = 0;
         int totalSavedCount = 0;
+        Integer totalExpected = null;
         
         while (true) {
             
-            LOGGER.debug("> Current Smugmug pageIndex: " + currentPageIndex);
+            LOGGER.debug("> Current Smugmug startIndex: {}", currentStartIndex);
 
-            GenericUrl downloadUrl = new GenericUrl(
-                "https://api.smugmug.com/api/v2/album/" + smugmugProviderEntity.getAlbumId() + "!images?start=" + currentPageIndex + "&count=" + PAGE_SIZE);
+            GenericUrl downloadUrl = new GenericUrl(String.format("https://api.smugmug.com/api/v2/album/%s!images?start=%s&count=%s", 
+                smugmugProviderEntity.getAlbumId(), currentStartIndex, PAGE_SIZE));
             HttpRequest downloadRequest = requestFactory.buildGetRequest(downloadUrl);
             downloadRequest.setHeaders(headers);
+            LOGGER.debug("> Smugmug request: {}", downloadUrl.toString());
             HttpResponse downloadResponse = downloadRequest.execute();
+            LOGGER.debug("> Smugmug response code: {}", downloadResponse.getStatusCode());
+            
             String json = downloadResponse.parseAsString();
             downloadResponse.getContent().close();
             ParsingUtil.printPrettyJson(LOGGER, json);
-
-            LOGGER.debug("> Smugmug response received");
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(json);
@@ -108,14 +110,26 @@ public class SmugmugDownloadManager implements DownloadManager {
 
             JsonNode albumImageNode = responseNode.path("AlbumImage");
             if (!ParsingUtil.jsonNodeExists(albumImageNode)) {
-                LOGGER.debug("Ending Smugmug downloads at pageIndex " + currentPageIndex);
+                LOGGER.debug("Ending Smugmug downloads at startIndex {}", currentStartIndex);
                 break;
             }
             
-            totalParsedCount++;
+            // only parse total expected once
+            if (totalExpected == null) {
+                JsonNode pagesNode = responseNode.path("Pages");
+                if (ParsingUtil.jsonNodeExists(pagesNode)) {
+                    JsonNode totalNode = pagesNode.path("Total");
+                    if (ParsingUtil.jsonNodeExists(totalNode)) {
+                        totalExpected = totalNode.asInt();
+                        LOGGER.debug("Total expected: {}", totalExpected);
+                    }
+                }
+            }
 
             for (Iterator<JsonNode> i1 = albumImageNode.elements(); i1.hasNext();) {
 
+                totalParsedCount++;
+                
                 JsonNode fileNode = i1.next();
 
                 String remoteId = fileNode.get("ImageKey").textValue();
@@ -149,7 +163,7 @@ public class SmugmugDownloadManager implements DownloadManager {
                         createdDateNode = imageMetaNode.get("DateTimeCreated");
                     if (createdDateNode == null || createdDateNode.textValue().trim().equals(""))
                         createdDateNode = imageMetaNode.get("DateDigitized");
-                    LOGGER.debug("Found createdDateNode: " + createdDateNode.textValue());
+                    LOGGER.debug("Found createdDateNode: {}", createdDateNode.textValue());
                     Date originallyCreated = DATE_FORMAT.parse(createdDateNode.textValue().substring(0, 19));
 
                     GenericUrl contentUrl = new GenericUrl(fileNode.get("ArchivedUri").textValue());
@@ -163,13 +177,13 @@ public class SmugmugDownloadManager implements DownloadManager {
                     Path originalPathObj = Paths.get(originalPath);
                     Path convertedPathObj = Paths.get(convertedPath);
 
-                    LOGGER.debug("> writing to " + originalPath);
+                    LOGGER.debug("> writing to {}", originalPath);
                     Files.copy(contentStream, originalPathObj);
                     contentStream.close();
 
                     String cmd = "convert-peerframe -resize x800 " + originalPath + " " + convertedPath;
-                    LOGGER.debug("> converting to " + convertedPath);
-                    LOGGER.debug(cmd);
+                    LOGGER.debug("> converting to {}", convertedPath);
+                    LOGGER.debug("> running: {}", cmd);
 
                     Process process = Runtime.getRuntime().exec(cmd);
                     StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), LOGGER, "CONVERT-ERROR");
@@ -182,7 +196,7 @@ public class SmugmugDownloadManager implements DownloadManager {
                     process.waitFor();
                     process.destroy();
 
-                    LOGGER.debug("> reading from " + convertedPath);
+                    LOGGER.debug("> reading from {}", convertedPath);
 
                     byte[] localBytes = Files.readAllBytes(convertedPathObj);
 
@@ -208,25 +222,25 @@ public class SmugmugDownloadManager implements DownloadManager {
                     mediaEntity.setOriginallyCreated(originallyCreated);
                     mediaEntity.setLastUpdated(lastUpdated);
 
-                    LOGGER.debug("> downloaded Smugmug " + mediaEntity.getMediaType() + " " + mediaEntity.getRemoteId());
+                    LOGGER.debug("> downloaded Smugmug {} {}", mediaEntity.getMediaType(), mediaEntity.getRemoteId());
 
                     mediaEntity.setId(mediaId);
                     mediaEntity.setProvider(providerEntity);
 
                     mediaRepository.save(mediaEntity);
 
-                    LOGGER.info("Saved remote " + mediaEntity.getRemoteId() + " to local " + mediaEntity.getId());
+                    LOGGER.info("Saved remote {} to local {} ({}/{})", mediaEntity.getRemoteId(), mediaEntity.getId(), totalParsedCount, totalExpected);
                     totalSavedCount++;
                 }
                 else {
-                    LOGGER.info("Ignoring remote " + mediaEntity.getRemoteId() + " due to local " + mediaEntity.getId());
+                    LOGGER.info("Ignoring remote {} due to local {} ({}/{})", mediaEntity.getRemoteId(), mediaEntity.getId(), totalParsedCount, totalExpected);
                     totalIgnoredCount++;
                 }
             }   
             
-            currentPageIndex++;
+            currentStartIndex += PAGE_SIZE;
         }
 
-        LOGGER.info("In total, saved " + totalSavedCount + " and ignored " + totalIgnoredCount + " over " + totalParsedCount);
+        LOGGER.info("In total, saved {} and ignored {} over {}", totalSavedCount, totalIgnoredCount, totalParsedCount);
     }
 }

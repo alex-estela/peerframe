@@ -18,10 +18,10 @@ public class CleaningService {
     @PostConstruct
     public void cleanTmpFolder() {
         try {
-            LOGGER.info("Cleaning folder: " + Application.getTempFolder());
+            LOGGER.info("Cleaning folder: {}", Application.getTempFolder());
             File folder = new File(Application.getTempFolder());
             for (String fileName : folder.list()) {
-                LOGGER.info("> Deleting " + fileName);
+                LOGGER.info("> Deleting {}", fileName);
                 new File(fileName).delete();
             }
         }

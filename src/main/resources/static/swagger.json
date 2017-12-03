@@ -2,7 +2,7 @@
 	"swagger": "2.0",
 	"info": {
 		"title": "PeerFrame API",
-		"version": "0.0.2",
+		"version": "0.1.0",
 		"description": "Local PeerFrame API."
 	},
 	"basePath": "/api",
@@ -155,13 +155,51 @@
 		"/tools/ping": {
 			"get": {
 				"tags": [
-					"Tooling"
+					"Tool"
 				],
 				"responses": {
 					"200": {
 						"description": "Successful operation.",
 						"schema": {
 							"type": "string"
+						}
+					}
+				}
+			}
+		},
+		"/tools/deviceSetup": {
+			"get": {
+				"tags": [
+					"Tool"
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation.",
+						"schema": {
+							"$ref": "#/definitions/DeviceSetup"
+						}
+					}
+				}
+			},
+			"put": {
+				"tags": [
+					"Tool"
+				],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/DeviceSetup"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation.",
+						"schema": {
+							"$ref": "#/definitions/DeviceSetup"
 						}
 					}
 				}
@@ -261,6 +299,23 @@
 				"created": {
 					"type": "string",
 					"description": "Original date of creation in ISO 8601 format."
+				}
+			}
+		},
+		"DeviceSetup": {
+			"description": "Device setup.",
+			"properties": {
+				"deviceId": {
+					"type": "string",
+					"description": "Unique Device UUID."
+				},
+				"deviceName": {
+					"type": "string",
+					"description": "Device name."
+				},
+				"ownerId": {
+					"type": "string",
+					"description": "Device owner id."
 				}
 			}
 		}

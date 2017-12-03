@@ -33,7 +33,7 @@ public class StreamGobbler extends Thread {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 			String line;
 			while ((line = reader.readLine()) != null) {
-				if (streamId != null) logger.debug(">" + streamId + "> "+ line);
+				if (streamId != null) logger.debug(">{}> {}", streamId, line);
 				else resultLines.add(line);
 			}
 			reader.close();
