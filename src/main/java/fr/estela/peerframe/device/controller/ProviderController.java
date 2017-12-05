@@ -20,6 +20,7 @@ import fr.estela.peerframe.api.model.Provider.ProviderTypeEnum;
 import fr.estela.peerframe.device.entity.ProviderEntity;
 import fr.estela.peerframe.device.entity.SmugmugProviderEntity;
 import fr.estela.peerframe.device.repository.ProviderRepository;
+import fr.estela.peerframe.device.service.DownloadService;
 import fr.estela.peerframe.api.model.SmugmugProvider;
 
 @Controller
@@ -31,6 +32,9 @@ public class ProviderController extends AbstractController {
     
     @Autowired
     private ProviderRepository providerRepository;
+    
+    @Autowired
+    private DownloadService downloadService;
 
     private Provider toProvider(ProviderEntity providerEntity) throws Exception {
 
@@ -90,11 +94,14 @@ public class ProviderController extends AbstractController {
 
     @RequestMapping(value = "/providers", method = RequestMethod.POST)
     public ResponseEntity<Provider> providersPost(@RequestBody Provider provider) throws Exception {
-        
+
+        provider.setId(null);
         ProviderEntity providerEntity = toProviderEntity(provider);
         providerEntity = providerRepository.save(providerEntity);
         provider.setId(providerEntity.getId().toString());
         LOGGER.info("Created provider: {}", providerEntity);
+        
+        downloadService.triggerService();
         
         return populateCreatedResponse(provider);
     }
@@ -109,6 +116,8 @@ public class ProviderController extends AbstractController {
         providerRepository.save(providerEntity);
         LOGGER.info("Updated provider: {}", providerEntity);
 
+        downloadService.triggerService();
+        
         return populateRetrievedResponse(provider);
     }
 
@@ -118,6 +127,8 @@ public class ProviderController extends AbstractController {
         providerRepository.delete(UUID.fromString(providerId));
         LOGGER.info("Deleted provider with id: {}", providerId);
 
+        downloadService.triggerService();
+        
         return populateDeletedResponse();
     }
 

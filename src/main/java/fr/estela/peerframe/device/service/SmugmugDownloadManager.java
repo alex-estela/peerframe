@@ -63,6 +63,15 @@ public class SmugmugDownloadManager implements DownloadManager {
         LOGGER.debug("Smugmug access token secret: {}", smugmugProviderEntity.getAccessTokenSecret());
         LOGGER.debug("Smugmug album: {}", smugmugProviderEntity.getAlbumId());
         
+        if (smugmugProviderEntity.getConsumerKey() == null 
+            || smugmugProviderEntity.getConsumerSecret() == null
+            || smugmugProviderEntity.getAccessToken() == null
+            || smugmugProviderEntity.getAccessTokenSecret() == null
+            || smugmugProviderEntity.getAlbumId() == null) {
+            LOGGER.error("Invalid Smugmug provider configuration, exiting");
+            return;
+        }
+        
         OAuthHmacSigner signer = new OAuthHmacSigner();
         signer.clientSharedSecret = smugmugProviderEntity.getConsumerSecret();
         signer.tokenSharedSecret = smugmugProviderEntity.getAccessTokenSecret();
