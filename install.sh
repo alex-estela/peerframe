@@ -21,7 +21,7 @@ sudo mv /home/pi/maven.sh /etc/profile.d/maven.sh
 
 cd /home/pi/peerframe
 mkdir tmp
-mvn clean spring-boot:repackage
+mvn clean package
 
 echo '#! /bin/sh
 
