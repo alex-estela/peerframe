@@ -5,12 +5,12 @@
 
 cd /home/pi
 
-sudo apt-get update
+sudo apt-get install -y postgresql imagemagick unclutter
 
-# sudo apt-get upgrade -y
-# sudo apt-get dist-upgrade –y
+sudo ln -s /usr/bin/convert /usr/bin/convert-peerframe
 
-sudo apt-get install -y tint2 matchbox-window-manager postgresql imagemagick
+sudo runuser -l postgres -c "psql -c \"CREATE USER peerframe WITH PASSWORD 'peerframe';\""
+sudo runuser -l postgres -c "psql -c \"CREATE DATABASE peerframe OWNER peerframe;\""
 
 wget http://www-us.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
 sudo tar -xzvf apache-maven-3.3.9-bin.tar.gz
@@ -19,40 +19,14 @@ export PATH=$PATH:$M2_HOME/bin ' >> /home/pi/maven.sh
 sudo mv /home/pi/maven.sh /etc/profile.d/maven.sh
 . /etc/profile.d/maven.sh
 
-git clone git://github.com/rg3/youtube-dl
-sudo ln -s ~/youtube-dl/youtube_dl/__main__.py /usr/bin/youtube-dl
-
-wget http://steinerdatenbank.de/software/kweb-1.7.0.tar.gz
-tar -xzf kweb-1.7.0.tar.gz
-cd kweb-1.7.0
-./debinstall
-
-echo 'matchbox-window-manager -use_titlebar no -use_cursor no &
-xset s noblank
-xset -dpms
-xset s off
-kweb3 -KAHZJEobhrp+-zgtjnediwxyqcf "file:///home/pi/peerframe/target/classes/static/index.html" ' >> /home/pi/kiosk
-chmod +x /home/pi/kiosk
-
-sudo sed -i '/fi/axinit /home/pi/kiosk' /etc/rc.local
-
-sudo sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.config
-
-sudo sed -i '/README/agpu_mem=16s' /boot/config.txt
-
-# Config spéciale HDML PI 7
-sudo sed -i '/README/alcd_rotate=2' /boot/config.txt
-
-sudo ln -s /usr/bin/convert /usr/bin/convert-peerframe
-
 cd /home/pi/peerframe
 mkdir tmp
-mvn clean install spring-boot:repackage
+mvn clean spring-boot:repackage
 
 echo '#! /bin/sh
 
 ### BEGIN INIT INFO
-# Provides:          peerframe-backend
+# Provides:          peerframe
 # Required-Start:    $local_fs $network $remote_fs
 # Required-Stop:     $local_fs $network $remote_fs
 # Should-Start:      $NetworkManager
@@ -65,7 +39,7 @@ echo '#! /bin/sh
 
 PEERFRAME_DIR="/home/pi/peerframe"
 PID_FILE=/tmp/peerframe.pid
-ARGS="-Dconfig=$PEERFRAME_DIR/target/classes/inflector.yaml -jar $PEERFRAME_DIR/target/peerframe.jar"
+ARGS="-jar $PEERFRAME_DIR/target/peerframe.jar"
 
 case "$1" in
   start)
@@ -85,13 +59,33 @@ sudo mv /home/pi/initd-peerframe /etc/init.d/peerframe
 sudo chmod +x /etc/init.d/peerframe
 sudo update-rc.d peerframe defaults
 
-sudo runuser -l postgres -c "psql -c \"CREATE USER peerframe WITH PASSWORD 'peerframe';\""
-sudo runuser -l postgres -c "psql -c \"CREATE DATABASE peerframe OWNER peerframe;\""
+sudo sed -i '/README/alcd_rotate=2' /boot/config.txt
+sudo sed -i '/README/aavoid_warnings=1' /boot/config.txt
+sudo sed -i '/README/adisable_splash=1' /boot/config.txt
 
-sudo raspi-config --expand-rootfs
+sudo rm -f /etc/profile.d/sshpwd.sh
+sudo rm -f /etc/xdg/lxsession/LXDE-pi/sshpwd.sh
 
-# enable console auto login (emulate raspi-config boot behaviour B2)
-sudo systemctl set-default multi-user.target
-sudo ln -fs /etc/systemd/system/autologin@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
+sudo mv /usr/share/plymouth/themes/pix/splash.png /usr/share/plymouth/themes/pix/splash.png.old
+sudo su -c "echo `sed '$s/$/ logo.nologo/' /boot/cmdline.txt` > /boot/cmdline.txt"
+
+sudo sed -i '/fi/axinit /home/pi/kiosk.sh' /etc/rc.local
+
+echo '#!/bin/bash
+
+xset s noblank
+xset -dpms
+xset s off
+unclutter &
+
+sudo -u pi /usr/bin/chromium-browser --kiosk --disable-infobars --disable-session-crashed-bubble --noerrdialogs --incognito --window-position=0,0 --window-size=800,600 file:///home/pi/peerframe/target/classes/static/index.html
+' >> /home/pi/kiosk.sh
+
+echo '@xset s 0 0
+@xset s noblank
+@xset s noexpose
+@xset dpms 0 0 0
+@unclutter
+' >> /home/pi/.config/lxsession/LXDE-pi/autostart
 
 sudo reboot

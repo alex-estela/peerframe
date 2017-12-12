@@ -32,8 +32,8 @@ body {
 }
 .loadingContainer {
 	width: 100%;
-	min-height: 900px;
-	background: url(hourglass.jpg) no-repeat center center;
+	min-height: 480px;
+	background: url(hourglass.png) no-repeat center center;
 	align: center;
 	margin: auto;
 	text-align: center;
