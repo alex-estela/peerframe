@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import fr.estela.peerframe.api.model.GooglePhotosProvider;
 import fr.estela.peerframe.api.model.Provider;
 import fr.estela.peerframe.api.model.Provider.ProviderTypeEnum;
+import fr.estela.peerframe.device.entity.GooglePhotosProviderEntity;
 import fr.estela.peerframe.device.entity.ProviderEntity;
 import fr.estela.peerframe.device.entity.SmugmugProviderEntity;
 import fr.estela.peerframe.device.repository.ProviderRepository;
@@ -51,6 +53,17 @@ public class ProviderController extends AbstractController {
             smugmugProvider.setAccessTokenSecret(smugmugProviderEntity.getAccessTokenSecret());
             provider = smugmugProvider;
         }
+        else if (providerEntity instanceof GooglePhotosProviderEntity) {
+            GooglePhotosProviderEntity googlePhotosProviderEntity = (GooglePhotosProviderEntity) providerEntity;
+            GooglePhotosProvider googlePhotosProvider = new GooglePhotosProvider();
+            googlePhotosProvider.setProviderType(ProviderTypeEnum.GOOGLEPHOTOSPROVIDER);
+            googlePhotosProvider.setProjectId(googlePhotosProviderEntity.getProjectId());
+            googlePhotosProvider.setClientId(googlePhotosProviderEntity.getClientId());
+            googlePhotosProvider.setClientSecret(googlePhotosProviderEntity.getClientSecret());
+            googlePhotosProvider.setAuthorizationCode(googlePhotosProviderEntity.getAuthorizationCode());
+            googlePhotosProvider.setAlbumName(googlePhotosProviderEntity.getAlbumName());
+            provider = googlePhotosProvider;
+        }
         else throw newBadRequestException("Unsupported provider type: " + providerEntity);
 
         provider.setId(providerEntity.getId().toString());
@@ -71,6 +84,16 @@ public class ProviderController extends AbstractController {
             smugmugProviderEntity.setAccessToken(smugmugProvider.getAccessToken());
             smugmugProviderEntity.setAccessTokenSecret(smugmugProvider.getAccessTokenSecret());
             providerEntity = smugmugProviderEntity;
+        }
+        else if (provider instanceof GooglePhotosProvider) {
+            GooglePhotosProvider googlePhotosProvider = (GooglePhotosProvider) provider;
+            GooglePhotosProviderEntity googlePhotosProviderEntity = new GooglePhotosProviderEntity();
+            googlePhotosProviderEntity.setProjectId(googlePhotosProvider.getProjectId());
+            googlePhotosProviderEntity.setClientId(googlePhotosProvider.getClientId());
+            googlePhotosProviderEntity.setClientSecret(googlePhotosProvider.getClientSecret());
+            googlePhotosProviderEntity.setAuthorizationCode(googlePhotosProvider.getAuthorizationCode());
+            googlePhotosProviderEntity.setAlbumName(googlePhotosProvider.getAlbumName());
+            providerEntity = googlePhotosProviderEntity;
         }
         else throw newBadRequestException("Unsupported provider type: " + provider);
 

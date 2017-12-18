@@ -204,6 +204,24 @@
 					}
 				}
 			}
+		},
+		"/tools/events": {
+			"get": {
+				"tags": [
+					"Tool"
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation.",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/Event"
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"definitions": {
@@ -218,7 +236,8 @@
 					"type": "string",
 					"description": "Provider type (Smugmug, GooglePhotos, etc).",
 					"enum": [
-						"SmugmugProvider"
+						"SmugmugProvider",
+						"GooglePhotosProvider"
 					]
 				},
 				"name": {
@@ -272,6 +291,46 @@
 				}
 			]
 		},
+		"GooglePhotosProvider": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/Provider"
+				},
+				{
+					"type": "object",
+					"description": "Google Photos provider resource.",
+					"properties": {
+						"projectId": {
+							"type": "string",
+							"description": "Id of the Google project (https://console.developers.google.com > Select project)."
+						},
+						"clientId": {
+							"type": "string",
+							"description": "Client id (https://console.developers.google.com > Identifiers > Other)."
+						},
+						"clientSecret": {
+							"type": "string",
+							"description": "Client secret (https://console.developers.google.com > Identifiers > Other)."
+						},
+						"authorizationCode": {
+							"type": "string",
+							"description": "Authorization code obtained by granting access to the Google Photos account (https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent&scope=http%3A%2F%2Fphotos.googleapis.com%2Fdata%2F&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&client_id=1012871464196-buicrvovb6680uuln6n7u1ngp2ph6a9u.apps.googleusercontent.com). Once used, the value of the authorization code is replaced by <tampered>"
+						},
+						"albumName": {
+							"type": "string",
+							"description": "Name of the Google Photos album."
+						}
+					},
+					"required": [
+						"projectId",
+						"clientId",
+						"clientSecret",
+						"authorizationCode",
+						"albumName"
+					]
+				}
+			]
+		},
 		"Media": {
 			"description": "Media resource (image, video, etc).",
 			"properties": {
@@ -283,7 +342,6 @@
 					"type": "string",
 					"description": "Media type (gif, jpg, png, etc).",
 					"enum": [
-						"gif",
 						"jpg",
 						"png"
 					]
@@ -316,6 +374,30 @@
 				"ownerId": {
 					"type": "string",
 					"description": "Device owner id."
+				},
+			  "providerInProgress": {
+					"type": "string",
+					"description": "Id of the provider currently being downloaded."
+				}
+			}
+		},
+		"Event": {
+			"description": "Event registered by the device.",
+			"properties": {
+				"type": {
+					"type": "string",
+					"description": "Type of event.",
+					"enum": [
+						"ERROR"
+					]
+				},
+				"description": {
+					"type": "string",
+					"description": "Description of the event."
+				},
+				"time": {
+					"type": "string",
+					"description": "Time of the event."
 				}
 			}
 		}

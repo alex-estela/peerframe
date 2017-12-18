@@ -21,6 +21,7 @@ sudo mv /home/pi/maven.sh /etc/profile.d/maven.sh
 
 cd /home/pi/peerframe
 mkdir tmp
+mkdir data
 mvn clean package
 
 echo '#! /bin/sh

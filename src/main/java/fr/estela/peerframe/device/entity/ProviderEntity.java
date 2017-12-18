@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 
-import fr.estela.peerframe.device.service.DownloadManager;
+import fr.estela.peerframe.device.service.AbstractDownloadManager;
 
 @Entity
 @Table(name="provider")
@@ -25,6 +25,7 @@ public class ProviderEntity {
     private UUID id;
 	
 	private String name;
+    private String lastDownloadInfo;
 	
 	public UUID getId() {
 		return id;
@@ -37,14 +38,20 @@ public class ProviderEntity {
 	}
 	public void setName(String name) {
 		this.name = name;
-	}    
+	} 
+    public String getLastDownloadInfo() {
+        return lastDownloadInfo;
+    }    
+    public void setLastDownloadInfo(String lastDownloadInfo) {
+        this.lastDownloadInfo = lastDownloadInfo;
+    }
     
     @Override
     public String toString() {
         return getClass().getSimpleName() + " / " + id.toString() + " (" + name + ")";
     }
     
-    public DownloadManager getDownloadManagerInstance() throws Exception {
+    public AbstractDownloadManager getDownloadManagerInstance() throws Exception {
         throw new Exception("Download Manager not defined");
     }
 }

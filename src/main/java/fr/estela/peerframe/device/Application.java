@@ -46,6 +46,10 @@ public class Application {
         return System.getProperty("user.home").replace("\\", "/") + "/peerframe/tmp/";
     }
     
+    public static String getDataFolder() {
+        return System.getProperty("user.home").replace("\\", "/") + "/peerframe/data/";
+    }
+    
     @Autowired
     private Environment env;
     

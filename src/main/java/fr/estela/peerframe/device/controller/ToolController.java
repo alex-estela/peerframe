@@ -1,5 +1,7 @@
 package fr.estela.peerframe.device.controller;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import fr.estela.peerframe.api.model.DeviceSetup;
+import fr.estela.peerframe.api.model.Event;
 import fr.estela.peerframe.device.entity.SetupEntity;
 import fr.estela.peerframe.device.repository.SetupRepository;
+import fr.estela.peerframe.device.service.DownloadService;
+import fr.estela.peerframe.device.util.EventCache;
 
 @Controller
 @RequestMapping(value = "/api")
@@ -21,6 +26,12 @@ public class ToolController extends AbstractController {
 
     @Autowired
     private SetupRepository setupRepository;
+
+    @Autowired
+    private DownloadService downloadService;
+
+    @Autowired
+    private EventCache eventCache;
     
     @RequestMapping(value = "/tools/ping", method = RequestMethod.GET)
     public ResponseEntity<String> toolsPingGet() {
@@ -34,7 +45,8 @@ public class ToolController extends AbstractController {
         DeviceSetup deviceSetup = new DeviceSetup();
         deviceSetup.setDeviceId(setupEntity.getDeviceId().toString());
         deviceSetup.setDeviceName(setupEntity.getDeviceName());
-        deviceSetup.setOwnerId(setupEntity.getOwnerId());        
+        deviceSetup.setOwnerId(setupEntity.getOwnerId()); 
+        deviceSetup.setProviderInProgress(downloadService.getProviderInProgress());
         return populateRetrievedResponse(deviceSetup);
     }
 
@@ -50,8 +62,15 @@ public class ToolController extends AbstractController {
 
         deviceSetup.setDeviceId(setupEntity.getDeviceId().toString());
         deviceSetup.setDeviceName(setupEntity.getDeviceName());
-        deviceSetup.setOwnerId(setupEntity.getOwnerId());        
+        deviceSetup.setOwnerId(setupEntity.getOwnerId()); 
+        deviceSetup.setProviderInProgress(downloadService.getProviderInProgress());       
         return populateRetrievedResponse(deviceSetup);
+    }
+    
+    @RequestMapping(value = "/tools/events", method = RequestMethod.GET)
+    public ResponseEntity<List<Event>> toolsEventsGet() throws Exception {
+
+        return populateRetrievedResponse(eventCache.getEvents());
     }
 
 }

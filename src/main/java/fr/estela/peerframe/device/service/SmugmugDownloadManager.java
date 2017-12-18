@@ -1,13 +1,9 @@
 package fr.estela.peerframe.device.service;
 
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,36 +19,25 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 
-import fr.estela.peerframe.api.model.Media.MediaTypeEnum;
-import fr.estela.peerframe.device.Application;
-import fr.estela.peerframe.device.entity.MediaContentEntity;
-import fr.estela.peerframe.device.entity.MediaContentStreamEntity;
 import fr.estela.peerframe.device.entity.MediaEntity;
 import fr.estela.peerframe.device.entity.ProviderEntity;
 import fr.estela.peerframe.device.entity.SmugmugProviderEntity;
 import fr.estela.peerframe.device.repository.MediaRepository;
 import fr.estela.peerframe.device.repository.ProviderRepository;
 import fr.estela.peerframe.device.util.ParsingUtil;
-import fr.estela.peerframe.device.util.StreamGobbler;
 
-public class SmugmugDownloadManager implements DownloadManager {
+public class SmugmugDownloadManager extends AbstractDownloadManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SmugmugDownloadManager.class);
     private static final int PAGE_SIZE = 10;
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    
-    private MediaTypeEnum getMediaTypeFromJsonValue(String value) {
-        if (value.equals("jpg") || value.equals("jpeg")) return MediaTypeEnum.JPG;
-        LOGGER.warn("Unknown media content type: {}", value);
-        return null;
-    }
-    
+
     @Override
     public void downloadAndSaveMedias(
         ProviderEntity providerEntity,
         ProviderRepository providerRepository,
         MediaRepository mediaRepository) throws Exception {
-        
+
         LOGGER.debug("Smugmug download initiated...");
 
         SmugmugProviderEntity smugmugProviderEntity = (SmugmugProviderEntity) providerEntity;
@@ -62,16 +47,14 @@ public class SmugmugDownloadManager implements DownloadManager {
         LOGGER.debug("Smugmug access token: {}", smugmugProviderEntity.getAccessToken());
         LOGGER.debug("Smugmug access token secret: {}", smugmugProviderEntity.getAccessTokenSecret());
         LOGGER.debug("Smugmug album: {}", smugmugProviderEntity.getAlbumId());
-        
-        if (smugmugProviderEntity.getConsumerKey() == null 
-            || smugmugProviderEntity.getConsumerSecret() == null
-            || smugmugProviderEntity.getAccessToken() == null
-            || smugmugProviderEntity.getAccessTokenSecret() == null
+
+        if (smugmugProviderEntity.getConsumerKey() == null || smugmugProviderEntity.getConsumerSecret() == null
+            || smugmugProviderEntity.getAccessToken() == null || smugmugProviderEntity.getAccessTokenSecret() == null
             || smugmugProviderEntity.getAlbumId() == null) {
             LOGGER.error("Invalid Smugmug provider configuration, exiting");
             return;
         }
-        
+
         OAuthHmacSigner signer = new OAuthHmacSigner();
         signer.clientSharedSecret = smugmugProviderEntity.getConsumerSecret();
         signer.tokenSharedSecret = smugmugProviderEntity.getAccessTokenSecret();
@@ -91,19 +74,20 @@ public class SmugmugDownloadManager implements DownloadManager {
         int totalIgnoredCount = 0;
         int totalSavedCount = 0;
         Integer totalExpected = null;
-        
+
         while (true) {
-            
+
             LOGGER.debug("> Current Smugmug startIndex: {}", currentStartIndex);
 
-            GenericUrl downloadUrl = new GenericUrl(String.format("https://api.smugmug.com/api/v2/album/%s!images?start=%s&count=%s", 
-                smugmugProviderEntity.getAlbumId(), currentStartIndex, PAGE_SIZE));
+            GenericUrl downloadUrl = new GenericUrl(
+                String.format("https://api.smugmug.com/api/v2/album/%s!images?start=%s&count=%s",
+                    smugmugProviderEntity.getAlbumId(), currentStartIndex, PAGE_SIZE));
             HttpRequest downloadRequest = requestFactory.buildGetRequest(downloadUrl);
             downloadRequest.setHeaders(headers);
             LOGGER.debug("> Smugmug request: {}", downloadUrl.toString());
             HttpResponse downloadResponse = downloadRequest.execute();
             LOGGER.debug("> Smugmug response code: {}", downloadResponse.getStatusCode());
-            
+
             String json = downloadResponse.parseAsString();
             downloadResponse.getContent().close();
             ParsingUtil.printPrettyJson(LOGGER, json);
@@ -122,7 +106,7 @@ public class SmugmugDownloadManager implements DownloadManager {
                 LOGGER.debug("Ending Smugmug downloads at startIndex {}", currentStartIndex);
                 break;
             }
-            
+
             // only parse total expected once
             if (totalExpected == null) {
                 JsonNode pagesNode = responseNode.path("Pages");
@@ -138,7 +122,7 @@ public class SmugmugDownloadManager implements DownloadManager {
             for (Iterator<JsonNode> i1 = albumImageNode.elements(); i1.hasNext();) {
 
                 totalParsedCount++;
-                
+
                 JsonNode fileNode = i1.next();
 
                 String remoteId = fileNode.get("ImageKey").textValue();
@@ -180,73 +164,22 @@ public class SmugmugDownloadManager implements DownloadManager {
                     HttpResponse contentResponse = contentRequest.execute();
                     InputStream contentStream = contentResponse.getContent();
 
-                    UUID mediaId = UUID.randomUUID();
-                    String originalPath = Application.getTempFolder() + mediaId + "-original";
-                    String convertedPath = Application.getTempFolder() + mediaId + "-converted";
-                    Path originalPathObj = Paths.get(originalPath);
-                    Path convertedPathObj = Paths.get(convertedPath);
-
-                    LOGGER.debug("> writing to {}", originalPath);
-                    Files.copy(contentStream, originalPathObj);
-                    contentStream.close();
-
-                    String cmd = "convert-peerframe -resize x800 " + originalPath + " " + convertedPath;
-                    LOGGER.debug("> converting to {}", convertedPath);
-                    LOGGER.debug("> running: {}", cmd);
-
-                    Process process = Runtime.getRuntime().exec(cmd);
-                    StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), LOGGER, "CONVERT-ERROR");
-                    errorGobbler.start();
-                    StreamGobbler inputGobbler = new StreamGobbler(process.getInputStream(), LOGGER, "CONVERT-INPUT");
-                    inputGobbler.start();
-                    errorGobbler.join();
-                    inputGobbler.join();
-                    process.getOutputStream().close();
-                    process.waitFor();
-                    process.destroy();
-
-                    LOGGER.debug("> reading from {}", convertedPath);
-
-                    byte[] localBytes = Files.readAllBytes(convertedPathObj);
-
-                    MediaContentStreamEntity localMediaContentStreamEntity = new MediaContentStreamEntity();
-                    localMediaContentStreamEntity.setBytes(localBytes);
-
-                    MediaContentEntity localMediaContentEntity = new MediaContentEntity();
-                    localMediaContentEntity.setContentStream(localMediaContentStreamEntity);
-                    localMediaContentEntity.setWidth(remoteWidth); // TODO calculate new local width
-                    localMediaContentEntity.setHeight(remoteHeight); // TODO calculate new local height
-                    mediaEntity.setLocalContent(localMediaContentEntity);
-
-                    MediaContentEntity remoteMediaContentEntity = new MediaContentEntity();
-                    remoteMediaContentEntity.setWidth(remoteWidth);
-                    remoteMediaContentEntity.setHeight(remoteHeight);
-                    mediaEntity.setRemoteContent(remoteMediaContentEntity);
-
-                    Files.delete(Paths.get(originalPath));
-                    Files.delete(Paths.get(convertedPath));
-
-                    if (mediaEntity.getRemoteId() == null) mediaEntity.setRemoteId(remoteId);
-                    mediaEntity.setMediaType(getMediaTypeFromJsonValue(type));
-                    mediaEntity.setOriginallyCreated(originallyCreated);
-                    mediaEntity.setLastUpdated(lastUpdated);
-
                     LOGGER.debug("> downloaded Smugmug {} {}", mediaEntity.getMediaType(), mediaEntity.getRemoteId());
 
-                    mediaEntity.setId(mediaId);
-                    mediaEntity.setProvider(providerEntity);
-
-                    mediaRepository.save(mediaEntity);
+                    resizeAndSaveMedia(LOGGER, mediaEntity, smugmugProviderEntity, mediaRepository, remoteId,
+                        remoteWidth, remoteHeight, originallyCreated, lastUpdated, getMediaTypeFromJsonValue(LOGGER, type),
+                        contentStream);
 
                     LOGGER.info("Saved remote {} to local {} ({}/{})", mediaEntity.getRemoteId(), mediaEntity.getId(), totalParsedCount, totalExpected);
                     totalSavedCount++;
                 }
                 else {
-                    LOGGER.info("Ignoring remote {} due to local {} ({}/{})", mediaEntity.getRemoteId(), mediaEntity.getId(), totalParsedCount, totalExpected);
+                    LOGGER.info("Ignoring remote {} due to local {} ({}/{})", mediaEntity.getRemoteId(),
+                        mediaEntity.getId(), totalParsedCount, totalExpected);
                     totalIgnoredCount++;
                 }
-            }   
-            
+            }
+
             currentStartIndex += PAGE_SIZE;
         }
 
