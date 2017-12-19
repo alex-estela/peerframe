@@ -24,6 +24,9 @@ mkdir tmp
 mkdir data
 mvn clean package
 
+cd /home/pi/peerframe/liquibase
+java -jar liquibase.jar --driver=org.postgresql.Driver --classpath=postgresql.jar --changeLogFile=changelog.xml --url="jdbc:postgresql://localhost:5432/peerframe" --username=peerframe --password=peerframe update
+
 echo '#! /bin/sh
 
 ### BEGIN INIT INFO
@@ -66,6 +69,9 @@ sudo sed -i '/README/adisable_splash=1' /boot/config.txt
 
 sudo rm -f /etc/profile.d/sshpwd.sh
 sudo rm -f /etc/xdg/lxsession/LXDE-pi/sshpwd.sh
+sudo su -c "echo 'pi:peer2peer' | chpasswd"
+
+sudo touch /boot/ssh
 
 sudo mv /usr/share/plymouth/themes/pix/splash.png /usr/share/plymouth/themes/pix/splash.png.old
 sudo su -c "echo `sed '$s/$/ logo.nologo/' /boot/cmdline.txt` > /boot/cmdline.txt"

@@ -89,7 +89,7 @@ public class DownloadService {
                         LOGGER.error("Download failed", e);
                     }
                 }
-                LOGGER.info("All downloads completed");
+                LOGGER.info("Download loop completed");
             }
             catch(Exception e) {
                 LOGGER.error("Download failed", e);                

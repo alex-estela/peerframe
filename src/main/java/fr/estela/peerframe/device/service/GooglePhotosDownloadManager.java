@@ -123,7 +123,7 @@ public class GooglePhotosDownloadManager extends AbstractDownloadManager {
         UserFeed userFeed = service.getFeed(new URL(URL_ALBUMS), UserFeed.class);
         String albumId = null;
 
-        LOGGER.debug("Found {} albums");
+        LOGGER.debug("Found {} albums", userFeed.getEntries().size());
         for (GphotoEntry entry : userFeed.getEntries()) {
             String name = entry.getTitle().getPlainText();
             LOGGER.debug("> Album: {}", name);
@@ -138,6 +138,8 @@ public class GooglePhotosDownloadManager extends AbstractDownloadManager {
         int totalParsedCount = 0;
         int totalIgnoredCount = 0;
         int totalSavedCount = 0;
+        
+        if (albumId == null) throw new Exception("Album not found: " + albumId);
 
         while (true) {
 

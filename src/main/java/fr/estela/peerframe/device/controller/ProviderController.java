@@ -19,8 +19,10 @@ import fr.estela.peerframe.api.model.GooglePhotosProvider;
 import fr.estela.peerframe.api.model.Provider;
 import fr.estela.peerframe.api.model.Provider.ProviderTypeEnum;
 import fr.estela.peerframe.device.entity.GooglePhotosProviderEntity;
+import fr.estela.peerframe.device.entity.MediaEntity;
 import fr.estela.peerframe.device.entity.ProviderEntity;
 import fr.estela.peerframe.device.entity.SmugmugProviderEntity;
+import fr.estela.peerframe.device.repository.MediaRepository;
 import fr.estela.peerframe.device.repository.ProviderRepository;
 import fr.estela.peerframe.device.service.DownloadService;
 import fr.estela.peerframe.api.model.SmugmugProvider;
@@ -34,6 +36,9 @@ public class ProviderController extends AbstractController {
     
     @Autowired
     private ProviderRepository providerRepository;
+
+    @Autowired
+    private MediaRepository mediaRepository;
     
     @Autowired
     private DownloadService downloadService;
@@ -147,6 +152,12 @@ public class ProviderController extends AbstractController {
     @RequestMapping(value = "/providers/{providerId}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> providersProviderIdDelete(@PathVariable("providerId") String providerId) {
 
+        List<MediaEntity> medias = mediaRepository.findByProviderId(UUID.fromString(providerId));
+        for (MediaEntity media : medias) {
+            mediaRepository.delete(media);
+        }
+        LOGGER.info("Deleted {} medias", medias.size());
+        
         providerRepository.delete(UUID.fromString(providerId));
         LOGGER.info("Deleted provider with id: {}", providerId);
 

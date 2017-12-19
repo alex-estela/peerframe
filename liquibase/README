@@ -1,0 +1,1 @@
+java -jar liquibase.jar --driver=org.postgresql.Driver --classpath=postgresql.jar --changeLogFile=changelog.xml --url="jdbc:postgresql://localhost:5432/peerframe" --username=peerframe --password=peerframe update
