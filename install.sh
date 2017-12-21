@@ -5,7 +5,7 @@
 
 cd /home/pi
 
-sudo apt-get install -y postgresql imagemagick unclutter
+sudo apt-get install -y postgresql imagemagick unclutter matchbox-keyboard
 
 sudo ln -s /usr/bin/convert /usr/bin/convert-peerframe
 
@@ -63,6 +63,8 @@ sudo update-rc.d peerframe defaults
 sudo sed -i '/README/alcd_rotate=2' /boot/config.txt
 sudo sed -i '/README/aavoid_warnings=1' /boot/config.txt
 sudo sed -i '/README/adisable_splash=1' /boot/config.txt
+
+sudo sed -i 's/XKBLAYOUT="[^"]*"/XKBLAYOUT="fr"/' /etc/default/keyboard
 
 sudo rm -f /etc/profile.d/sshpwd.sh
 sudo rm -f /etc/xdg/lxsession/LXDE-pi/sshpwd.sh
