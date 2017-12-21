@@ -118,7 +118,7 @@
 								<argument>--driver=org.postgresql.Driver</argument>
 								<argument>--classpath=postgresql.jar</argument>
 								<argument>--changeLogFile=changelog.xml</argument>
-								<argument>--url="jdbc:postgresql://localhost:5432/peerframe"</argument>
+								<argument>--url=jdbc:postgresql://localhost:5432/peerframe</argument>
 								<argument>--username=peerframe</argument>
 								<argument>--password=peerframe</argument>
 								<argument>update</argument>

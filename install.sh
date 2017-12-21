@@ -106,7 +106,7 @@ wifissid=$1
 wifikey=$2
 sudo sed -i 's/ssid="[^"]*"/ssid="'"$wifissid"'"/' /etc/wpa_supplicant/wpa_supplicant.conf
 sudo sed -i 's/psk="[^"]*"/psk="'"$wifikey"'"/' /etc/wpa_supplicant/wpa_supplicant.conf
-echo 'Wifi update script completed"
+echo "Wifi update script completed"
 ' >> /home/pi/updatewifi
 sudo chmod +x /home/pi/updatewifi
 sudo mv /home/pi/updatewifi /usr/bin
