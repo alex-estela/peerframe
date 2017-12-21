@@ -5,13 +5,11 @@ import java.util.Properties;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -37,21 +35,26 @@ import fr.estela.peerframe.device.util.CORSFilter;
 @ComponentScan("fr.estela.peerframe.device")
 @EnableJpaRepositories("fr.estela.peerframe.device.repository")
 public class Application {
+    
+    private static final String VERSION = "1";
+    private static final String FOLDER_TEMP = System.getProperty("user.home").replace("\\", "/") + "/peerframe/tmp/";
+    private static final String FOLDER_DATA = System.getProperty("user.home").replace("\\", "/") + "/peerframe/data/";
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(Application.class, args);     
     }
     
+    public static String getVersion() {
+        return VERSION;
+    }
+    
     public static String getTempFolder() {
-        return System.getProperty("user.home").replace("\\", "/") + "/peerframe/tmp/";
+        return FOLDER_TEMP;
     }
     
     public static String getDataFolder() {
-        return System.getProperty("user.home").replace("\\", "/") + "/peerframe/data/";
+        return FOLDER_DATA;
     }
-    
-    @Autowired
-    private Environment env;
     
     @Bean
     public FilterRegistrationBean getSwaggerCORSFilterRegistration() {
@@ -83,9 +86,9 @@ public class Application {
         final JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
         Properties properties = new Properties();
-        properties.setProperty("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
+        properties.setProperty("hibernate.hbm2ddl.auto", "validate");
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        properties.setProperty("hibernate.show_sql", env.getProperty("hibernate.show_sql"));
+        properties.setProperty("hibernate.show_sql", "false");
         properties.setProperty("hibernate.format_sql", "true");
         em.setJpaProperties(properties);
         return em;

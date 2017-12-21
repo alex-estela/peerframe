@@ -30,6 +30,21 @@ body {
 	font-size: 16px;
 	padding: 2px;
 }
+.paramButton {
+	position: absolute;
+	z-index: 10;
+	top: 2px;
+	right: 2px;
+	background: url(param.png) no-repeat center center;
+	display: block;
+	min-height: 40px;
+	min-width: 40px;
+	cursor: pointer;
+}
+.paramTable td { 
+ padding: 0px 15px 5px 0px;
+}
+
 .loadingContainer {
 	width: 100%;
 	min-height: 480px;
@@ -37,6 +52,7 @@ body {
 	align: center;
 	margin: auto;
 	text-align: center;
+	font-family: Arial;
 	color: #fff;
 	font-weight: bold;
 	font-size: 40pt;
@@ -44,4 +60,24 @@ body {
 }
 .owl-item.loading{
 	background: none;
+}
+
+.ui-dialog .ui-dialog-content, .ui-tabs { padding:0; }
+.ui-dialog-titlebar { display:none; }
+#paramDialogInner { border:0; }
+
+.ui-tabs-nav li.ui-tabs-close-button {
+    float: right;
+    margin-top: 3px;
+}
+
+.paramTable {
+	margin-bottom: 18px;
+}
+
+#paramCloseButton {
+	min-width: 34px;
+	min-height: 34px;
+	background: url(close.png) no-repeat center center;
+	cursor: pointer;
 }

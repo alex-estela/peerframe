@@ -9,6 +9,7 @@ var PEERFRAME = {
 	getMediasURI: "/api/medias",
 	getMediasRandomAttr: "?random=true",
 	pingURI: "/api/tools/ping",
+	deviceSetupURI: "/api/tools/deviceSetup",
 	loadingMsg: "LOADING",
 	errorMsg: "ERROR",
 	mediaDisplayTime: 8000,
@@ -16,6 +17,7 @@ var PEERFRAME = {
 	retryTimeout: 600000,
 	debugMode: true,
 	trustMode: true,
+	paramDialogObj: null,
 	
 	// tmp
 	retryTimeSoFar: 0,
@@ -28,7 +30,11 @@ var PEERFRAME = {
 			dataType : "json",
 			success : function(response) {
 				
-				if (!response || !response.length || response.length == 0) PEERFRAME.reinit();
+				if (!response || !response.length || response.length == 0) {
+					setTimeout(function() {
+						PEERFRAME.reinit();
+					}, PEERFRAME.mediaDisplayTime);
+				}
 				else {
 						
 					if (PEERFRAME.debugMode) console.log("Found " + response.length + " medias");
@@ -165,4 +171,52 @@ var PEERFRAME = {
 
 $(document).ready(function() {
 	PEERFRAME.init();	
+	
+	// param modal setup
+	PEERFRAME.paramDialogObj = $("#paramDialog").dialog({
+		autoOpen: false,
+		width: 600,
+		height: 400,
+		modal: true
+	});
+	$("#paramDialogInner").tabs({
+	    create: function(e, ui) {
+	        $('#paramCloseButton').click(function() {
+	        	PEERFRAME.paramDialogObj.dialog('close');
+	        });
+	    }
+	});
+	$(".paramButton").on("click", function() {
+		$.ajax({
+			type: "GET",
+			url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI,
+			dataType: "json",
+			success: function(response) {
+				$("#param_wifi_ssid").val(response.wifiSSID);
+				$("#param_wifi_key").val(response.wifiKey);
+				$("#param_version").html(response.applicationVersion);
+				PEERFRAME.paramDialogObj.dialog("open");
+			}
+		});
+	});
+	$("#paramWifiUpdateButton").on("click", function() {	
+		var deviceSetup = {
+			wifiSSID: $("#param_wifi_ssid").val(),
+			wifiKey: $("#param_wifi_key").val()
+		};
+		$.ajax({
+			type: "PUT",
+			url: PEERFRAME.backendCtxRoot + "/api/tools/deviceSetup",
+		    headers: { 
+		    	'Accept': 'application/json',
+		        'Content-Type': 'application/json' 
+		    },
+			dataType: "json",
+			data: JSON.stringify(deviceSetup),
+			success: function(response) {
+				$("#param_wifi_ssid").val(response.wifiSSID);
+				$("#param_wifi_key").val(response.wifiKey);
+			}
+		});
+	});	
 });

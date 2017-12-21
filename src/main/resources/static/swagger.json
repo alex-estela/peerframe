@@ -378,6 +378,18 @@
 			  "providerInProgress": {
 					"type": "string",
 					"description": "Id of the provider currently being downloaded."
+				},
+				"applicationVersion": {
+					"type": "string",
+					"description": "Version of the application."
+				},
+				"wifiSSID": {
+					"type": "string",
+					"description": "WiFi SSID."
+				},
+				"wifiKey": {
+					"type": "string",
+					"description": "WiFi Key."
 				}
 			}
 		},

@@ -24,9 +24,6 @@ mkdir tmp
 mkdir data
 mvn clean package
 
-cd /home/pi/peerframe/liquibase
-java -jar liquibase.jar --driver=org.postgresql.Driver --classpath=postgresql.jar --changeLogFile=changelog.xml --url="jdbc:postgresql://localhost:5432/peerframe" --username=peerframe --password=peerframe update
-
 echo '#! /bin/sh
 
 ### BEGIN INIT INFO
@@ -94,5 +91,32 @@ echo '@xset s 0 0
 @xset dpms 0 0 0
 @unclutter
 ' >> /home/pi/.config/lxsession/LXDE-pi/autostart
+
+cp /etc/wpa_supplicant/wpa_supplicant.conf /home/pi/wpa_supplicant.conf
+echo 'network={
+        ssid="TBD"
+        psk="TBD"
+}' >> /home/pi/wpa_supplicant.conf
+sudo mv -f /home/pi/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
+
+echo '#!/bin/bash
+wifissid=$1
+wifikey=$2
+sudo sed -i 's/ssid="[^"]*"/ssid="'"$wifissid"'"/' /etc/wpa_supplicant/wpa_supplicant.conf
+sudo sed -i 's/psk="[^"]*"/psk="'"$wifikey"'"/' /etc/wpa_supplicant/wpa_supplicant.conf
+echo 'Wifi update script completed"
+' >> /home/pi/updatewifi
+sudo chmod +x /home/pi/updatewifi
+sudo mv /home/pi/updatewifi /usr/bin
+
+echo '#!/bin/bash
+cd /home/pi/peerframe
+git pull
+. /etc/profile.d/maven.sh
+mvn clean package 
+echo "Device upgrade script completed"
+' >> /home/pi/upgradedevice
+sudo chmod +x /home/pi/upgradedevice
+sudo mv /home/pi/upgradedevice /usr/bin
 
 sudo reboot

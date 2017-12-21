@@ -7,6 +7,10 @@
 <meta name="viewport" content="width=device-width"/>
 <script type="text/javascript" src="lib/jquery/jquery-1.12.0.min.js"></script>
 <script type="text/javascript" src="lib/jquery/jquery.ui.touch-punch.min.js"></script>
+<script type="text/javascript" src="lib/jquery/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="lib/jquery/jquery-ui.min.css"/>
+<link rel="stylesheet" href="lib/jquery/jquery-ui.structure.min.css"/>
+<link rel="stylesheet" href="lib/jquery/jquery-ui.theme.min.css"/>
 <link rel="stylesheet" href="lib/owl-carousel/owl.carousel.css"/>
 <link rel="stylesheet" href="lib/owl-carousel/owl.theme.css"/>
 <link rel="stylesheet" href="lib/owl-carousel/owl.transitions.css">
@@ -20,5 +24,39 @@
 <div class="loadingContainer"></div>
 <div class="owl-carousel mediaContainer"></div>
 <div class="mediaTooltip"></div>
+<div class="paramButton"></div>
+<div id="paramDialog" style="display:none">
+	<div id="paramDialogInner">
+		<ul id="paramTabs">
+			<li><a href="#paramWifi">WiFi</a></li>
+			<li><a href="#paramUpgrade">Version</a></li>
+			<li class="ui-tabs-close-button"><div id="paramCloseButton"></div></li>
+		</ul>
+		<div id="paramContent">
+			<div id="paramWifi">
+				<table class="paramTable">
+					<tr>
+						<td>SSID</td>
+						<td><input type="text" name="param_wifi_ssid" id="param_wifi_ssid" value="" class="text ui-widget-content ui-corner-all"></td>
+					</tr>
+					<tr>
+						<td>Key</td>
+						<td><input type="text" name="param_wifi_key" id="param_wifi_key" value="" class="text ui-widget-content ui-corner-all"></td>
+					</tr>
+				</table>
+				<button id="paramWifiUpdateButton" class="ui-button ui-widget ui-corner-all">Update</button>
+			</div>
+			<div id="paramUpgrade">
+				<table class="paramTable">
+					<tr>
+						<td>Software Version</td>
+						<td><div id="param_version">0</div></td>
+					</tr>
+				</table>
+				<button id="paramVersionUpgradeButton" class="ui-button ui-widget ui-corner-all">Upgrade version</button>
+			</div>
+		</div>
+	</div>
+</div>
 </body>
 </html>
