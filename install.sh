@@ -70,8 +70,6 @@ sudo rm -f /etc/profile.d/sshpwd.sh
 sudo rm -f /etc/xdg/lxsession/LXDE-pi/sshpwd.sh
 sudo su -c "echo 'pi:peer2peer' | chpasswd"
 
-sudo touch /boot/ssh
-
 sudo mv /usr/share/plymouth/themes/pix/splash.png /usr/share/plymouth/themes/pix/splash.png.old
 sudo su -c "echo `sed '$s/$/ logo.nologo/' /boot/cmdline.txt` > /boot/cmdline.txt"
 
@@ -94,12 +92,14 @@ echo '@xset s 0 0
 @unclutter
 ' >> /home/pi/.config/lxsession/LXDE-pi/autostart
 
-cp /etc/wpa_supplicant/wpa_supplicant.conf /home/pi/wpa_supplicant.conf
-echo 'network={
-        ssid="TBD"
-        psk="TBD"
-}' >> /home/pi/wpa_supplicant.conf
-sudo mv -f /home/pi/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
+# sudo touch /boot/ssh
+
+# cp /etc/wpa_supplicant/wpa_supplicant.conf /home/pi/wpa_supplicant.conf
+# echo 'network={
+#         ssid="TBD"
+#         psk="TBD"
+# }' >> /home/pi/wpa_supplicant.conf
+# sudo mv -f /home/pi/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
 
 echo '#!/bin/bash
 wifissid=$1
