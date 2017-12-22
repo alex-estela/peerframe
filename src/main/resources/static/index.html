@@ -24,7 +24,7 @@
 <div class="loadingContainer"></div>
 <div class="owl-carousel mediaContainer"></div>
 <div class="mediaTooltip"></div>
-<div class="paramButton"></div>
+<div class="paramButton"><img id="paramButtonImg" border="0" src="lib/peerframe/param.png"/></div>
 <div id="paramDialog" style="display:none">
 	<div id="paramDialogInner">
 		<ul id="paramTabs">
@@ -42,6 +42,10 @@
 					<tr>
 						<td>Key</td>
 						<td><input type="text" name="param_wifi_key" id="param_wifi_key" value="" class="text ui-widget-content ui-corner-all"></td>
+					</tr>
+					<tr>
+						<td>Connected</td>
+						<td><div id="param_wifi_connected">false</div></td>
 					</tr>
 				</table>
 				<button id="paramWifiUpdateButton" class="ui-button ui-widget ui-corner-all">Update</button>

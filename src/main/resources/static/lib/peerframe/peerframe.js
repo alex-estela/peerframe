@@ -186,7 +186,7 @@ $(document).ready(function() {
 	        });
 	    }
 	});
-	$(".paramButton").on("click", function() {
+	$("#paramButtonImg").on("click", function() {
 		$.ajax({
 			type: "GET",
 			url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI,
@@ -194,6 +194,7 @@ $(document).ready(function() {
 			success: function(response) {
 				$("#param_wifi_ssid").val(response.wifiSSID);
 				$("#param_wifi_key").val(response.wifiKey);
+				$("#param_wifi_connected").html(navigator.onLine);
 				$("#param_version").html(response.applicationVersion);
 				PEERFRAME.paramDialogObj.dialog("open");
 			}

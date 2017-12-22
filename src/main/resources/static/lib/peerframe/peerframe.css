@@ -33,13 +33,12 @@ body {
 }
 .paramButton {
 	position: absolute;
-	z-index: 10;
-	top: 2px;
-	right: 2px;
-	background: url(param.png) no-repeat center center;
+	z-index: 11;
+	top: 5px;
+	right: 5px;
 	display: block;
-	min-height: 40px;
-	min-width: 40px;
+	height: 40px;
+	width: 40px;
 	cursor: pointer;
 }
 .paramTable td { 
