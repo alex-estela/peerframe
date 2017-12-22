@@ -113,10 +113,11 @@ sudo mv /home/pi/updatewifi /usr/bin
 
 echo '#!/bin/bash
 cd /home/pi/peerframe
+git reset --hard HEAD
 git pull
 . /etc/profile.d/maven.sh
 mvn clean package 
-echo "Device upgrade script completed"
+sudo reboot
 ' >> /home/pi/upgradedevice
 sudo chmod +x /home/pi/upgradedevice
 sudo mv /home/pi/upgradedevice /usr/bin
