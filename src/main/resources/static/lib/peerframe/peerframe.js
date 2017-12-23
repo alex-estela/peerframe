@@ -190,7 +190,7 @@ $(document).ready(function() {
 	        });
 	    }
 	});
-	PEERFRAME.openParamDialog = function() {
+	$(".paramButton").on("click", function() {
 		$.ajax({
 			type: "GET",
 			url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI,
@@ -203,7 +203,7 @@ $(document).ready(function() {
 				PEERFRAME.paramDialogObj.dialog("open");
 			}
 		});
-	};
+	});
 	$("#paramWifiUpdateButton").on("click", function() {	
 		var deviceSetup = {
 			wifiSSID: $("#param_wifi_ssid").val(),

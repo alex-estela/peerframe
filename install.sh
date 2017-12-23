@@ -80,7 +80,7 @@ echo '#!/bin/bash
 xset s noblank
 xset -dpms
 xset s off
-unclutter &
+unclutter -idle 0 &
 
 sudo -u pi /usr/bin/chromium-browser --kiosk --disable-infobars --disable-session-crashed-bubble --noerrdialogs --incognito --window-position=0,0 --window-size=800,600 file:///home/pi/peerframe/target/classes/static/index.html
 ' >> /home/pi/kiosk.sh
@@ -89,8 +89,9 @@ echo '@xset s 0 0
 @xset s noblank
 @xset s noexpose
 @xset dpms 0 0 0
-@unclutter
-' >> /home/pi/.config/lxsession/LXDE-pi/autostart
+@unclutter -idle 0' >> /home/pi/.config/lxsession/LXDE-pi/autostart
+
+sudo sed -i '/#xserver-command=X/axserver-command=X -nocursor -s 0 -dpms' /etc/lightdm/lightdm.conf
 
 # sudo touch /boot/ssh
 
@@ -104,8 +105,8 @@ echo '@xset s 0 0
 echo '#!/bin/bash
 wifissid=$1
 wifikey=$2
-sudo sed -i 's/ssid="[^"]*"/ssid="'"$wifissid"'"/' /etc/wpa_supplicant/wpa_supplicant.conf
-sudo sed -i 's/psk="[^"]*"/psk="'"$wifikey"'"/' /etc/wpa_supplicant/wpa_supplicant.conf
+sudo sed -i '\''s/ssid="[^"]*"/ssid="'\''"$wifissid"'\''"/'\'' /etc/wpa_supplicant/wpa_supplicant.conf
+sudo sed -i '\''s/psk="[^"]*"/psk="'\''"$wifikey"'\''"/'\'' /etc/wpa_supplicant/wpa_supplicant.conf
 echo "Wifi update script completed"
 ' >> /home/pi/updatewifi
 sudo chmod +x /home/pi/updatewifi
