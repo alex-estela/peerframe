@@ -10,6 +10,7 @@ var PEERFRAME = {
 	getMediasRandomAttr: "?random=true",
 	pingURI: "/api/tools/ping",
 	deviceSetupURI: "/api/tools/deviceSetup",
+	deviceSetupUpgradeVersionAttr: "?upgradeDeviceVersion=true",
 	loadingMsg: "LOADING",
 	errorMsg: "ERROR",
 	mediaDisplayTime: 8000,
@@ -17,7 +18,10 @@ var PEERFRAME = {
 	retryTimeout: 600000,
 	debugMode: true,
 	trustMode: true,
+	
+	// param mgmt
 	paramDialogObj: null,
+	openParamDialog: null,
 	
 	// tmp
 	retryTimeSoFar: 0,
@@ -186,7 +190,7 @@ $(document).ready(function() {
 	        });
 	    }
 	});
-	$("#paramButtonImg").on("click", function() {
+	PEERFRAME.openParamDialog = function() {
 		$.ajax({
 			type: "GET",
 			url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI,
@@ -194,12 +198,12 @@ $(document).ready(function() {
 			success: function(response) {
 				$("#param_wifi_ssid").val(response.wifiSSID);
 				$("#param_wifi_key").val(response.wifiKey);
-				$("#param_wifi_connected").html(navigator.onLine);
+				$("#param_wifi_connected").html(navigator.onLine ? "true" : "false");
 				$("#param_version").html(response.applicationVersion);
 				PEERFRAME.paramDialogObj.dialog("open");
 			}
 		});
-	});
+	};
 	$("#paramWifiUpdateButton").on("click", function() {	
 		var deviceSetup = {
 			wifiSSID: $("#param_wifi_ssid").val(),
@@ -207,7 +211,7 @@ $(document).ready(function() {
 		};
 		$.ajax({
 			type: "PUT",
-			url: PEERFRAME.backendCtxRoot + "/api/tools/deviceSetup",
+			url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI,
 		    headers: { 
 		    	'Accept': 'application/json',
 		        'Content-Type': 'application/json' 
@@ -220,4 +224,21 @@ $(document).ready(function() {
 			}
 		});
 	});	
+	$("#paramVersionUpgradeButton").on("click", function() {	
+		$.ajax({
+			type: "PUT",
+			url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI + PEERFRAME.deviceSetupUpgradeVersionAttr,
+		    headers: { 
+		    	'Accept': 'application/json',
+		        'Content-Type': 'application/json' 
+		    },
+			dataType: "json",
+			data: JSON.stringify({}),
+			success: function(response) {
+				console.log("Device upgrading, should reboot at any moment...");
+			}
+		});
+	});	
+	$('#param_wifi_ssid').keyboard();
+	$('#param_wifi_key').keyboard();
 });

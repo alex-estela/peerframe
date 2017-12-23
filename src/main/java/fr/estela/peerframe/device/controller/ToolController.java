@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import fr.estela.peerframe.api.model.DeviceSetup;
 import fr.estela.peerframe.api.model.Event;
@@ -62,8 +63,28 @@ public class ToolController extends AbstractController {
 
     @RequestMapping(value = "/tools/deviceSetup", method = RequestMethod.PUT)
     public ResponseEntity<DeviceSetup> toolsDeviceSetupPut(
-        @RequestBody DeviceSetup deviceSetup) throws Exception {
-        LOGGER.info("Device setup PUT operation");
+        @RequestBody DeviceSetup deviceSetup, @RequestParam(required = false) Boolean upgradeDeviceVersion) throws Exception {
+        LOGGER.info("Device setup PUT operation, with upgradeVersion: " + upgradeDeviceVersion);
+        
+        if (upgradeDeviceVersion != null && upgradeDeviceVersion) {
+            LOGGER.info("Upgrading device version, device should reboot...");
+            try {
+                Process process = Runtime.getRuntime().exec("upgradedevice");
+                StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), LOGGER, "UPDATEWIFI-ERROR");
+                errorGobbler.start();
+                StreamGobbler inputGobbler = new StreamGobbler(process.getInputStream(), LOGGER, "UPDATEWIFI-INPUT");
+                inputGobbler.start();
+                errorGobbler.join();
+                inputGobbler.join();
+                process.getOutputStream().close();
+                process.waitFor();
+                process.destroy();
+            }
+            catch(Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+            return populateRetrievedResponse(deviceSetup);
+        }
         
         SetupEntity setupEntity = setupRepository.findOne(SetupEntity.ID_DEVICE_SETUP);
         if (deviceSetup.getDeviceName() != null || deviceSetup.getOwnerId() != null) {

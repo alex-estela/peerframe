@@ -5,7 +5,7 @@
 
 cd /home/pi
 
-sudo apt-get install -y postgresql imagemagick unclutter matchbox-keyboard
+sudo apt-get install -y postgresql imagemagick unclutter
 
 sudo ln -s /usr/bin/convert /usr/bin/convert-peerframe
 
