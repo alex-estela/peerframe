@@ -58,12 +58,12 @@ public class ToolController extends AbstractController {
         deviceSetup.setOwnerId(setupEntity.getOwnerId());
         deviceSetup.setProviderInProgress(downloadService.getProviderInProgress());
         deviceSetup.setApplicationVersion(Application.getVersion());
-        deviceSetup.setInternetConnected(isInternetConnected());
-        deviceSetup.setLocalIP(getLocalIP());
 
         WifiSettings wifi = getWifiSettings();
         deviceSetup.setWifiSSID(wifi.ssid);
         deviceSetup.setWifiKey(wifi.key);
+        deviceSetup.setInternetConnected(isInternetConnected());
+        deviceSetup.setLocalIP(getLocalIP());
 
         return populateRetrievedResponse(deviceSetup);
     }
@@ -108,8 +108,6 @@ public class ToolController extends AbstractController {
         deviceSetup.setOwnerId(setupEntity.getOwnerId());
         deviceSetup.setProviderInProgress(downloadService.getProviderInProgress());
         deviceSetup.setApplicationVersion(Application.getVersion());
-        deviceSetup.setInternetConnected(isInternetConnected());
-        deviceSetup.setLocalIP(getLocalIP());
 
         WifiSettings wifi = getWifiSettings();
         if (deviceSetup.getWifiSSID() != null && !deviceSetup.getWifiSSID().trim().equals("")
@@ -137,6 +135,8 @@ public class ToolController extends AbstractController {
         }
         deviceSetup.setWifiSSID(wifi.ssid);
         deviceSetup.setWifiKey(wifi.key);
+        deviceSetup.setInternetConnected(isInternetConnected());
+        deviceSetup.setLocalIP(getLocalIP());
 
         return populateRetrievedResponse(deviceSetup);
     }
