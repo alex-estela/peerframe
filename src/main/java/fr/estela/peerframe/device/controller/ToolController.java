@@ -78,20 +78,12 @@ public class ToolController extends AbstractController {
             LOGGER.info("Upgrading device version, device should reboot...");
             try {
                 Process process = Runtime.getRuntime().exec("upgradedevice");
-                StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), LOGGER, "UPDATEWIFI-ERROR");
-                errorGobbler.start();
-                StreamGobbler inputGobbler = new StreamGobbler(process.getInputStream(), LOGGER, "UPDATEWIFI-INPUT");
-                inputGobbler.start();
-                errorGobbler.join();
-                inputGobbler.join();
-                process.getOutputStream().close();
                 process.waitFor();
-                process.destroy();
             }
             catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
-            return populateRetrievedResponse(deviceSetup);
+            return populateRetrievedResponse(null);
         }
 
         SetupEntity setupEntity = setupRepository.findOne(SetupEntity.ID_DEVICE_SETUP);
