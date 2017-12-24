@@ -228,7 +228,7 @@ $(document).ready(function() {
 					$("#param_wifi_key").val(response.wifiKey);
 					$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
 					$("#param_wifi_ip").html(response.localIP);
-				}, 10000);
+				}, 15000);
 			}
 		});
 	});	

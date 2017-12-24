@@ -36,7 +36,7 @@ import fr.estela.peerframe.device.util.CORSFilter;
 @EnableJpaRepositories("fr.estela.peerframe.device.repository")
 public class Application {
     
-    private static final String VERSION = "0.2";
+    private static final String VERSION = "0.2.test";
     private static final String FOLDER_TEMP = System.getProperty("user.home").replace("\\", "/") + "/peerframe/tmp/";
     private static final String FOLDER_DATA = System.getProperty("user.home").replace("\\", "/") + "/peerframe/data/";
 
