@@ -1,7 +1,12 @@
 package fr.estela.peerframe.device.controller;
 
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Enumeration;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -26,7 +31,7 @@ import fr.estela.peerframe.device.util.StreamGobbler;
 @Controller
 @RequestMapping(value = "/api")
 public class ToolController extends AbstractController {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ToolController.class);
 
     @Autowired
@@ -37,12 +42,12 @@ public class ToolController extends AbstractController {
 
     @Autowired
     private EventCache eventCache;
-    
+
     @RequestMapping(value = "/tools/ping", method = RequestMethod.GET)
     public ResponseEntity<String> toolsPingGet() {
         return populateRetrievedResponse("1");
     }
-    
+
     @RequestMapping(value = "/tools/deviceSetup", method = RequestMethod.GET)
     public ResponseEntity<DeviceSetup> toolsDeviceSetupGet() throws Exception {
 
@@ -50,22 +55,25 @@ public class ToolController extends AbstractController {
         DeviceSetup deviceSetup = new DeviceSetup();
         deviceSetup.setDeviceId(setupEntity.getDeviceId().toString());
         deviceSetup.setDeviceName(setupEntity.getDeviceName());
-        deviceSetup.setOwnerId(setupEntity.getOwnerId()); 
+        deviceSetup.setOwnerId(setupEntity.getOwnerId());
         deviceSetup.setProviderInProgress(downloadService.getProviderInProgress());
         deviceSetup.setApplicationVersion(Application.getVersion());
-        
+        deviceSetup.setInternetConnected(isInternetConnected());
+        deviceSetup.setLocalIP(getLocalIP());
+
         WifiSettings wifi = getWifiSettings();
         deviceSetup.setWifiSSID(wifi.ssid);
         deviceSetup.setWifiKey(wifi.key);
-        
+
         return populateRetrievedResponse(deviceSetup);
     }
 
     @RequestMapping(value = "/tools/deviceSetup", method = RequestMethod.PUT)
     public ResponseEntity<DeviceSetup> toolsDeviceSetupPut(
-        @RequestBody DeviceSetup deviceSetup, @RequestParam(required = false) Boolean upgradeDeviceVersion) throws Exception {
+        @RequestBody DeviceSetup deviceSetup,
+        @RequestParam(required = false) Boolean upgradeDeviceVersion) throws Exception {
         LOGGER.info("Device setup PUT operation, with upgradeVersion: " + upgradeDeviceVersion);
-        
+
         if (upgradeDeviceVersion != null && upgradeDeviceVersion) {
             LOGGER.info("Upgrading device version, device should reboot...");
             try {
@@ -80,15 +88,15 @@ public class ToolController extends AbstractController {
                 process.waitFor();
                 process.destroy();
             }
-            catch(Exception e) {
+            catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
             return populateRetrievedResponse(deviceSetup);
         }
-        
+
         SetupEntity setupEntity = setupRepository.findOne(SetupEntity.ID_DEVICE_SETUP);
         if (deviceSetup.getDeviceName() != null || deviceSetup.getOwnerId() != null) {
-            LOGGER.info("Updating device setup...");        
+            LOGGER.info("Updating device setup...");
             if (deviceSetup.getDeviceName() != null) setupEntity.setDeviceName(deviceSetup.getDeviceName());
             if (deviceSetup.getOwnerId() != null) setupEntity.setOwnerId(deviceSetup.getOwnerId());
             setupRepository.save(setupEntity);
@@ -97,17 +105,20 @@ public class ToolController extends AbstractController {
 
         deviceSetup.setDeviceId(setupEntity.getDeviceId().toString());
         deviceSetup.setDeviceName(setupEntity.getDeviceName());
-        deviceSetup.setOwnerId(setupEntity.getOwnerId()); 
-        deviceSetup.setProviderInProgress(downloadService.getProviderInProgress());  
-        deviceSetup.setApplicationVersion(Application.getVersion());     
-        
-        WifiSettings wifi = getWifiSettings();        
+        deviceSetup.setOwnerId(setupEntity.getOwnerId());
+        deviceSetup.setProviderInProgress(downloadService.getProviderInProgress());
+        deviceSetup.setApplicationVersion(Application.getVersion());
+        deviceSetup.setInternetConnected(isInternetConnected());
+        deviceSetup.setLocalIP(getLocalIP());
+
+        WifiSettings wifi = getWifiSettings();
         if (deviceSetup.getWifiSSID() != null && !deviceSetup.getWifiSSID().trim().equals("")
             && deviceSetup.getWifiKey() != null && !deviceSetup.getWifiKey().trim().equals("")
             && (!deviceSetup.getWifiSSID().equals(wifi.ssid) || !deviceSetup.getWifiKey().equals(wifi.key))) {
             LOGGER.info("Updating wifi config...");
             try {
-                Process process = Runtime.getRuntime().exec(String.format("updatewifi %s %s", deviceSetup.getWifiSSID(), deviceSetup.getWifiKey()));
+                Process process = Runtime.getRuntime()
+                    .exec(String.format("updatewifi %s %s", deviceSetup.getWifiSSID(), deviceSetup.getWifiKey()));
                 StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), LOGGER, "UPDATEWIFI-ERROR");
                 errorGobbler.start();
                 StreamGobbler inputGobbler = new StreamGobbler(process.getInputStream(), LOGGER, "UPDATEWIFI-INPUT");
@@ -118,24 +129,24 @@ public class ToolController extends AbstractController {
                 process.waitFor();
                 process.destroy();
             }
-            catch(Exception e) {
+            catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
             wifi = getWifiSettings();
             LOGGER.info("Updated wifi config");
-        }        
+        }
         deviceSetup.setWifiSSID(wifi.ssid);
         deviceSetup.setWifiKey(wifi.key);
-        
+
         return populateRetrievedResponse(deviceSetup);
     }
-    
+
     @RequestMapping(value = "/tools/events", method = RequestMethod.GET)
     public ResponseEntity<List<Event>> toolsEventsGet() throws Exception {
 
         return populateRetrievedResponse(eventCache.getEvents());
     }
-    
+
     private WifiSettings getWifiSettings() throws Exception {
         List<String> lines = Files.readAllLines(Paths.get("/etc/wpa_supplicant/wpa_supplicant.conf"));
         WifiSettings settings = new WifiSettings();
@@ -145,15 +156,57 @@ public class ToolController extends AbstractController {
                 settings.ssid = line.substring("ssid=".length()).replace("\"", "");
             }
             else if (line.startsWith("psk")) {
-                settings.key = line.substring("psk=".length()).replace("\"", "");                
-            }            
+                settings.key = line.substring("psk=".length()).replace("\"", "");
+            }
         }
         return settings;
     }
-    
+
     private class WifiSettings {
+
         private String ssid;
         private String key;
     }
-    
+
+    public boolean isInternetConnected() {
+        try {
+            String cmd = null;
+            if (System.getProperty("os.name").startsWith("Windows")) {
+                cmd = "ping -n 1 www.google.com";
+            }
+            else {
+                cmd = "ping -c 1 www.google.com";
+            }
+            Process myProcess = Runtime.getRuntime().exec(cmd);
+            myProcess.waitFor();
+            if (myProcess.exitValue() == 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public String getLocalIP() throws Exception {
+        try {
+            Enumeration<NetworkInterface> b = NetworkInterface.getNetworkInterfaces();
+            while (b.hasMoreElements()) {
+                for (InterfaceAddress f : b.nextElement().getInterfaceAddresses()) {
+                    if (f.getAddress().isSiteLocalAddress()) {
+                        return f.getAddress().toString().replace("/", "");
+                    }
+                }
+            }
+        }
+        catch (SocketException e) {
+            e.printStackTrace();
+        }
+        return InetAddress.getLocalHost().getHostAddress();
+    }
+
 }

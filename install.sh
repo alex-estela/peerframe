@@ -22,7 +22,7 @@ sudo mv /home/pi/maven.sh /etc/profile.d/maven.sh
 cd /home/pi/peerframe
 mkdir tmp
 mkdir data
-mvn clean package
+mvn clean package -P buildForDevice
 
 echo '#! /bin/sh
 
@@ -107,6 +107,10 @@ wifissid=$1
 wifikey=$2
 sudo sed -i '\''s/ssid="[^"]*"/ssid="'\''"$wifissid"'\''"/'\'' /etc/wpa_supplicant/wpa_supplicant.conf
 sudo sed -i '\''s/psk="[^"]*"/psk="'\''"$wifikey"'\''"/'\'' /etc/wpa_supplicant/wpa_supplicant.conf
+sudo killall wpa_supplicant && sleep 1
+sudo wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf && sleep 1
+sudo dhcpcd -4 wlan0
+ping -c 1 8.8.8.8 > /home/pi/updatewifi.log
 echo "Wifi update script completed"
 ' >> /home/pi/updatewifi
 sudo chmod +x /home/pi/updatewifi
@@ -117,7 +121,7 @@ cd /home/pi/peerframe
 git reset --hard HEAD
 git pull
 . /etc/profile.d/maven.sh
-mvn clean package 
+mvn clean package -P buildForDevice
 sudo reboot
 ' >> /home/pi/upgradedevice
 sudo chmod +x /home/pi/upgradedevice

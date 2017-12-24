@@ -177,6 +177,7 @@ $(document).ready(function() {
 	PEERFRAME.init();	
 	
 	// param modal setup
+	
 	PEERFRAME.paramDialogObj = $("#paramDialog").dialog({
 		autoOpen: false,
 		width: 600,
@@ -198,7 +199,8 @@ $(document).ready(function() {
 			success: function(response) {
 				$("#param_wifi_ssid").val(response.wifiSSID);
 				$("#param_wifi_key").val(response.wifiKey);
-				$("#param_wifi_connected").html(navigator.onLine ? "true" : "false");
+				$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
+				$("#param_wifi_ip").html(response.localIP);
 				$("#param_version").html(response.applicationVersion);
 				PEERFRAME.paramDialogObj.dialog("open");
 			}
@@ -221,6 +223,8 @@ $(document).ready(function() {
 			success: function(response) {
 				$("#param_wifi_ssid").val(response.wifiSSID);
 				$("#param_wifi_key").val(response.wifiKey);
+				$("#param_wifi_ip").html(response.localIP);
+				$("#param_wifi_connected").html((response.internetConnected ? "true" : "false") + " (updated)");
 			}
 		});
 	});	
@@ -239,6 +243,7 @@ $(document).ready(function() {
 			}
 		});
 	});	
+	
 	$('#param_wifi_ssid').keyboard();
 	$('#param_wifi_key').keyboard();
 });

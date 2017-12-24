@@ -31,7 +31,7 @@ public class SetupService {
                 deviceSetupEntity = new SetupEntity();
                 deviceSetupEntity.setId(SetupEntity.ID_DEVICE_SETUP);
                 deviceSetupEntity.setDeviceId(UUID.randomUUID());
-                deviceSetupEntity.setDeviceName(InetAddress.getLocalHost().toString());
+                deviceSetupEntity.setDeviceName(InetAddress.getLocalHost().getHostName());
                 setupRepository.save(deviceSetupEntity);
             }
             else LOGGER.info("Device setup already exists");

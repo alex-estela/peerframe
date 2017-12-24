@@ -7,7 +7,7 @@ body {
 	margin: 0px;
 	background-color: #000;
 	overflow: hidden;
-  cursor: none;
+  cursor: auto;
 }
 .mediaContainer {
 	width:100%; 
@@ -39,7 +39,6 @@ body {
 	display: block;
 	height: 40px;
 	width: 40px;
-	cursor: pointer;
 	background: url(param.png) no-repeat center center;
 }
 .paramTable td { 
@@ -80,5 +79,4 @@ body {
 	min-width: 34px;
 	min-height: 34px;
 	background: url(close.png) no-repeat center center;
-	cursor: pointer;
 }

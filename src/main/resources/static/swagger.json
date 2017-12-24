@@ -390,6 +390,14 @@
 				"wifiKey": {
 					"type": "string",
 					"description": "WiFi Key."
+				},
+				"internetConnected": {
+					"type": "boolean",
+					"description": "Whether the device is connected to Internet."
+				},
+				"localIP": {
+					"type": "string",
+					"description": "IP adress in the LAN."
 				}
 			}
 		},
