@@ -4,7 +4,7 @@
 
 var PEERFRAME = {
 
-	// params
+	// internal attributes
 	backendCtxRoot: "http://localhost:8080",
 	getMediasURI: "/api/medias",
 	getMediasRandomAttr: "?random=true",
@@ -13,6 +13,7 @@ var PEERFRAME = {
 	deviceSetupUpgradeVersionAttr: "?upgradeDeviceVersion=true",
 	loadingMsg: "LOADING",
 	errorMsg: "ERROR",
+	noMediaMsg: "NO MEDIA",
 	mediaDisplayTime: 8000,
 	retryFrequency: 5000,
 	retryTimeout: 600000,
@@ -26,15 +27,19 @@ var PEERFRAME = {
 	// tmp
 	retryTimeSoFar: 0,
 	mediaCount: 0,
-
+	
 	load: function() {
 		$.ajax({
 			type : "GET",
 			url : PEERFRAME.backendCtxRoot + PEERFRAME.getMediasURI + PEERFRAME.getMediasRandomAttr,
 			dataType : "json",
 			success : function(response) {
+
+				PEERFRAME.initParam();
 				
 				if (!response || !response.length || response.length == 0) {
+					$(".loadingContainer").html(PEERFRAME.noMediaMsg);
+					$(".loadingContainer").show();
 					setTimeout(function() {
 						PEERFRAME.reinit();
 					}, PEERFRAME.mediaDisplayTime);
@@ -170,85 +175,85 @@ var PEERFRAME = {
 				}
 			}
 		});
+	},
+	
+	initParam: function() {
+		PEERFRAME.paramDialogObj = $("#paramDialog").dialog({
+			autoOpen: false,
+			width: 600,
+			height: 400,
+			modal: true
+		});
+		$("#paramDialogInner").tabs({
+		    create: function(e, ui) {
+		        $('#paramCloseButton').click(function() {
+		        	PEERFRAME.paramDialogObj.dialog('close');
+		        });
+		    }
+		});
+		$(".paramButton").on("click", function() {
+			$.ajax({
+				type: "GET",
+				url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI,
+				dataType: "json",
+				success: function(response) {
+					$("#param_wifi_ssid").val(response.wifiSSID);
+					$("#param_wifi_key").val(response.wifiKey);
+					$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
+					$("#param_wifi_ip").html(response.localIP);
+					$("#param_version").html(response.applicationVersion);
+					PEERFRAME.paramDialogObj.dialog("open");
+				}
+			});
+		});
+		$("#paramWifiUpdateButton").on("click", function() {	
+			$("#param_wifi_connected").html("checking");	
+			$("#param_wifi_ip").html("checking");
+			var deviceSetup = {
+				wifiSSID: $("#param_wifi_ssid").val(),
+				wifiKey: $("#param_wifi_key").val()
+			};
+			$.ajax({
+				type: "PUT",
+				url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI,
+			    headers: { 
+			    	'Accept': 'application/json',
+			        'Content-Type': 'application/json' 
+			    },
+				dataType: "json",
+				data: JSON.stringify(deviceSetup),
+				success: function(response) {
+					setTimeout(function() { 
+						$("#param_wifi_ssid").val(response.wifiSSID);
+						$("#param_wifi_key").val(response.wifiKey);
+						$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
+						$("#param_wifi_ip").html(response.localIP);
+					}, 15000);
+				}
+			});
+		});	
+		$("#paramVersionUpgradeButton").on("click", function() {		
+			$("#param_version").html("upgrading, please wait");	
+			$.ajax({
+				type: "PUT",
+				url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI + PEERFRAME.deviceSetupUpgradeVersionAttr,
+			    headers: { 
+			    	'Accept': 'application/json',
+			        'Content-Type': 'application/json' 
+			    },
+				dataType: "json",
+				data: JSON.stringify({}),
+				success: function(response) {
+					console.log("Device upgrading, should reboot at any moment...");
+				}
+			});
+		});			
+		$('#param_wifi_ssid').keyboard();
+		$('#param_wifi_key').keyboard();
+		$(".paramButton").show();
 	}
 };
 
 $(document).ready(function() {
 	PEERFRAME.init();	
-	
-	// param modal setup
-	
-	PEERFRAME.paramDialogObj = $("#paramDialog").dialog({
-		autoOpen: false,
-		width: 600,
-		height: 400,
-		modal: true
-	});
-	$("#paramDialogInner").tabs({
-	    create: function(e, ui) {
-	        $('#paramCloseButton').click(function() {
-	        	PEERFRAME.paramDialogObj.dialog('close');
-	        });
-	    }
-	});
-	$(".paramButton").on("click", function() {
-		$.ajax({
-			type: "GET",
-			url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI,
-			dataType: "json",
-			success: function(response) {
-				$("#param_wifi_ssid").val(response.wifiSSID);
-				$("#param_wifi_key").val(response.wifiKey);
-				$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
-				$("#param_wifi_ip").html(response.localIP);
-				$("#param_version").html(response.applicationVersion);
-				PEERFRAME.paramDialogObj.dialog("open");
-			}
-		});
-	});
-	$("#paramWifiUpdateButton").on("click", function() {	
-		$("#param_wifi_connected").html("checking");	
-		$("#param_wifi_ip").html("checking");
-		var deviceSetup = {
-			wifiSSID: $("#param_wifi_ssid").val(),
-			wifiKey: $("#param_wifi_key").val()
-		};
-		$.ajax({
-			type: "PUT",
-			url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI,
-		    headers: { 
-		    	'Accept': 'application/json',
-		        'Content-Type': 'application/json' 
-		    },
-			dataType: "json",
-			data: JSON.stringify(deviceSetup),
-			success: function(response) {
-				setTimeout(function() { 
-					$("#param_wifi_ssid").val(response.wifiSSID);
-					$("#param_wifi_key").val(response.wifiKey);
-					$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
-					$("#param_wifi_ip").html(response.localIP);
-				}, 15000);
-			}
-		});
-	});	
-	$("#paramVersionUpgradeButton").on("click", function() {		
-		$("#param_version").html("upgrading, please wait");	
-		$.ajax({
-			type: "PUT",
-			url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI + PEERFRAME.deviceSetupUpgradeVersionAttr,
-		    headers: { 
-		    	'Accept': 'application/json',
-		        'Content-Type': 'application/json' 
-		    },
-			dataType: "json",
-			data: JSON.stringify({}),
-			success: function(response) {
-				console.log("Device upgrading, should reboot at any moment...");
-			}
-		});
-	});	
-	
-	$('#param_wifi_ssid').keyboard();
-	$('#param_wifi_key').keyboard();
 });

@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import fr.estela.peerframe.api.model.DeviceSetup;
 import fr.estela.peerframe.api.model.Event;
 import fr.estela.peerframe.device.Application;
@@ -130,6 +132,8 @@ public class ToolController extends AbstractController {
         deviceSetup.setInternetConnected(isInternetConnected());
         deviceSetup.setLocalIP(getLocalIP());
 
+        LOGGER.info("JSON after update: " + new ObjectMapper().writeValueAsString(deviceSetup));
+        
         return populateRetrievedResponse(deviceSetup);
     }
 
@@ -196,7 +200,7 @@ public class ToolController extends AbstractController {
             }
         }
         catch (SocketException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
         return InetAddress.getLocalHost().getHostAddress();
     }

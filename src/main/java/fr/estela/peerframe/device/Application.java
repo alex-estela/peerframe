@@ -36,9 +36,10 @@ import fr.estela.peerframe.device.util.CORSFilter;
 @EnableJpaRepositories("fr.estela.peerframe.device.repository")
 public class Application {
     
-    private static final String VERSION = "0.2.test";
-    private static final String FOLDER_TEMP = System.getProperty("user.home").replace("\\", "/") + "/peerframe/tmp/";
-    private static final String FOLDER_DATA = System.getProperty("user.home").replace("\\", "/") + "/peerframe/data/";
+    private static final String VERSION = Application.class.getPackage().getImplementationVersion();
+    private static final String FOLDER_USER = System.getProperty("user.home").replace("\\", "/");
+    private static final String FOLDER_TEMP = FOLDER_USER + "/peerframe/tmp/";
+    private static final String FOLDER_DATA = FOLDER_USER + "/peerframe/data/";
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(Application.class, args);     

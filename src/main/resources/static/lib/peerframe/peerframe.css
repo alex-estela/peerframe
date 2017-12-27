@@ -36,7 +36,7 @@ body {
 	z-index: 11;
 	top: 5px;
 	right: 5px;
-	display: block;
+	display: none;
 	height: 40px;
 	width: 40px;
 	background: url(param.png) no-repeat center center;
