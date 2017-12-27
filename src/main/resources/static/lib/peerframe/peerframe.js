@@ -186,7 +186,7 @@ var PEERFRAME = {
 		});
 		$("#paramDialogInner").tabs({
 		    create: function(e, ui) {
-		        $('#paramCloseButton').click(function() {
+		        $('#paramCloseButton').on("click", function() {
 		        	PEERFRAME.paramDialogObj.dialog('close');
 		        });
 		    }
@@ -223,12 +223,10 @@ var PEERFRAME = {
 				dataType: "json",
 				data: JSON.stringify(deviceSetup),
 				success: function(response) {
-					setTimeout(function() { 
-						$("#param_wifi_ssid").val(response.wifiSSID);
-						$("#param_wifi_key").val(response.wifiKey);
-						$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
-						$("#param_wifi_ip").html(response.localIP);
-					}, 15000);
+					$("#param_wifi_ssid").val(response.wifiSSID);
+					$("#param_wifi_key").val(response.wifiKey);
+					$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
+					$("#param_wifi_ip").html(response.localIP);
 				}
 			});
 		});	

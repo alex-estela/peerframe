@@ -82,7 +82,7 @@ xset -dpms
 xset s off
 unclutter -idle 0 &
 
-sudo -u pi /usr/bin/chromium-browser --kiosk --disable-infobars --disable-session-crashed-bubble --noerrdialogs --incognito --window-position=0,0 --window-size=800,600 file:///home/pi/peerframe/target/classes/static/index.html
+sudo -u pi /usr/bin/chromium-browser --kiosk --disable-infobars --disable-session-crashed-bubble --disable-pinch --noerrdialogs --incognito --window-position=0,0 --window-size=800,600 file:///home/pi/peerframe/target/classes/static/index.html
 ' >> /home/pi/kiosk.sh
 
 echo '@xset s 0 0
