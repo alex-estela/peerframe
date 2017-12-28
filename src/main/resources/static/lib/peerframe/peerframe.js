@@ -22,7 +22,7 @@ var PEERFRAME = {
 	
 	// param mgmt
 	paramDialogObj: null,
-	PEERFRAME.paramUpdateInProgress: false,
+	paramUpdateInProgress: false,
 	
 	// tmp
 	retryTimeSoFar: 0,
