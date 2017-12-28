@@ -75,6 +75,7 @@ public class DownloadService {
             providerInProgress = null;
             try {
                 List<ProviderEntity> providerEntities = providerRepository.findAll();
+                LOGGER.info("Download loop initiated with {} providers", providerEntities.size());
                 for (final ProviderEntity providerEntity : providerEntities) {
                     try {
                         if (providerRepository.findOne(providerEntity.getId()) != null) { // check that the entity still exists at this point
