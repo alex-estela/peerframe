@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import fr.estela.peerframe.api.model.DeviceSetup;
 import fr.estela.peerframe.api.model.Event;
 import fr.estela.peerframe.device.Application;
@@ -129,10 +131,12 @@ public class ToolController extends AbstractController {
         deviceSetup.setWifiKey(wifi.key);
         
         // wait a moment before checking the connection
-        Thread.sleep(10000);
+        Thread.sleep(15000);
         
         deviceSetup.setInternetConnected(isInternetConnected());
         deviceSetup.setLocalIP(getLocalIP());
+
+        LOGGER.info("JSON after update: " + new ObjectMapper().writeValueAsString(deviceSetup));
         
         return populateRetrievedResponse(deviceSetup);
     }
