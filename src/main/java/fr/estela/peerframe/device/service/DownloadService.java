@@ -57,6 +57,7 @@ public class DownloadService {
             try {
                 LOGGER.info("Triggering Download Service...");
                 currentTask.cancel();
+                Thread.sleep(10000);
                 currentTask = new DownloadTimerTask();
                 timer.schedule(currentTask, 0, RUN_PERIOD);
                 LOGGER.info("Triggering Download Service OK");
@@ -74,7 +75,6 @@ public class DownloadService {
         public void run() {
             providerInProgress = null;
             try {
-                providerRepository.flush();
                 List<ProviderEntity> providerEntities = providerRepository.findAll();
                 LOGGER.info("Download loop initiated with {} providers", providerEntities.size());
                 for (final ProviderEntity providerEntity : providerEntities) {
