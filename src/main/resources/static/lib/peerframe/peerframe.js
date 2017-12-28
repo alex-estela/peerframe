@@ -22,7 +22,7 @@ var PEERFRAME = {
 	
 	// param mgmt
 	paramDialogObj: null,
-	openParamDialog: null,
+	paramUpdateInProgress: false,
 	
 	// tmp
 	retryTimeSoFar: 0,
@@ -207,7 +207,10 @@ var PEERFRAME = {
 			});
 		});
 		$("#paramWifiUpdateButton").on("click", function() {
+			if (paramUpdateInProgress) return;
+			paramUpdateInProgress = true;
 			$("#paramWifiUpdateButton").button("disable");
+			$("#paramVersionUpgradeButton").button("disable");
 			$("#param_wifi_connected").html("checking");	
 			$("#param_wifi_ip").html("checking");
 			var deviceSetup = {
@@ -229,10 +232,15 @@ var PEERFRAME = {
 					$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
 					$("#param_wifi_ip").html(response.localIP);	
 					$("#paramWifiUpdateButton").button("enable");
+					$("#paramVersionUpgradeButton").button("enable");
+					paramUpdateInProgress = false;
 				}
 			});
 		});	
 		$("#paramVersionUpgradeButton").on("click", function() {
+			if (paramUpdateInProgress) return;
+			paramUpdateInProgress = true;
+			$("#paramWifiUpdateButton").button("disable");
 			$("#paramVersionUpgradeButton").button("disable");		
 			$("#param_version").html("upgrading, please wait");	
 			$.ajax({
@@ -245,8 +253,7 @@ var PEERFRAME = {
 				dataType: "json",
 				data: JSON.stringify({}),
 				success: function(response) {
-					console.log("Device upgrading, should reboot at any moment...");
-					//$("#paramVersionUpgradeButton").button("enable");
+					console.log("Device upgrading, should reboot at any moment, device setup cannot be updated anymore...");
 				}
 			});
 		});			
