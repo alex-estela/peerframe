@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.estela.peerframe.api.model.DeviceSetup;
@@ -74,6 +75,15 @@ public class ToolController extends AbstractController {
     public ResponseEntity<DeviceSetup> toolsDeviceSetupPut(
         @RequestBody DeviceSetup deviceSetup,
         @RequestParam(required = false) Boolean upgradeDeviceVersion) throws Exception {
+        
+        deviceSetup = updateDeviceSetup(deviceSetup, upgradeDeviceVersion);
+        
+        return populateRetrievedResponse(deviceSetup);
+    }
+
+    private synchronized DeviceSetup updateDeviceSetup(DeviceSetup deviceSetup, Boolean upgradeDeviceVersion)
+        throws Exception, InterruptedException, JsonProcessingException {
+        
         LOGGER.info("Device setup PUT operation, with upgradeVersion: " + upgradeDeviceVersion);
 
         if (upgradeDeviceVersion != null && upgradeDeviceVersion) {
@@ -85,7 +95,7 @@ public class ToolController extends AbstractController {
             catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
-            return populateRetrievedResponse(null);
+            return null;
         }
 
         SetupEntity setupEntity = setupRepository.findOne(SetupEntity.ID_DEVICE_SETUP);
@@ -137,8 +147,7 @@ public class ToolController extends AbstractController {
         deviceSetup.setLocalIP(getLocalIP());
 
         LOGGER.info("JSON after update: " + new ObjectMapper().writeValueAsString(deviceSetup));
-        
-        return populateRetrievedResponse(deviceSetup);
+        return deviceSetup;
     }
 
     @RequestMapping(value = "/tools/events", method = RequestMethod.GET)
