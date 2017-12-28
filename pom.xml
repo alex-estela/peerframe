@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.estela.peerframe</groupId>
 	<artifactId>peerframe</artifactId>
-	<version>0.4b</version>
+	<version>0.4c</version>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -101,31 +101,32 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<executions>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<version>3.5.3</version>
+				<executions>		
 					<execution>
-						<phase>package</phase>
+						<id>liquibaseReleaseLocks</id>
+						<phase>prepare-package</phase>
 						<goals>
-							<goal>exec</goal>
+							<goal>releaseLocks</goal>
 						</goals>
-						<configuration>
-							<workingDirectory>liquibase</workingDirectory>
-							<executable>java</executable>
-							<arguments>
-								<argument>-jar</argument>
-								<argument>liquibase.jar</argument>
-								<argument>--driver=org.postgresql.Driver</argument>
-								<argument>--classpath=postgresql.jar</argument>
-								<argument>--changeLogFile=changelog.xml</argument>
-								<argument>--url=jdbc:postgresql://localhost:5432/peerframe</argument>
-								<argument>--username=peerframe</argument>
-								<argument>--password=peerframe</argument>
-								<argument>update</argument>
-							</arguments>
-						</configuration>
+					</execution>
+					<execution>
+						<id>liquibaseUpdate</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>update</goal>
+						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<changeLogFile>${basedir}/liquibase/changelog.xml</changeLogFile>
+					<driver>org.postgresql.Driver</driver>
+					<url>jdbc:postgresql://localhost:5432/peerframe</url>
+					<username>peerframe</username>
+					<password>peerframe</password>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -140,10 +141,10 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<profiles>
 		<profile>
-      <id>buildForDevice</id>
+			<id>buildForDevice</id>
 			<build>
 				<plugins>
 					<plugin>

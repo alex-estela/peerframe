@@ -206,7 +206,8 @@ var PEERFRAME = {
 				}
 			});
 		});
-		$("#paramWifiUpdateButton").on("click", function() {	
+		$("#paramWifiUpdateButton").on("click", function() {
+			$("#paramWifiUpdateButton").button("disable");
 			$("#param_wifi_connected").html("checking");	
 			$("#param_wifi_ip").html("checking");
 			var deviceSetup = {
@@ -226,11 +227,13 @@ var PEERFRAME = {
 					$("#param_wifi_ssid").val(response.wifiSSID);
 					$("#param_wifi_key").val(response.wifiKey);
 					$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
-					$("#param_wifi_ip").html(response.localIP);
+					$("#param_wifi_ip").html(response.localIP);	
+					$("#paramWifiUpdateButton").button("enable");
 				}
 			});
 		});	
-		$("#paramVersionUpgradeButton").on("click", function() {		
+		$("#paramVersionUpgradeButton").on("click", function() {
+			$("#paramVersionUpgradeButton").button("disable");		
 			$("#param_version").html("upgrading, please wait");	
 			$.ajax({
 				type: "PUT",
@@ -243,9 +246,12 @@ var PEERFRAME = {
 				data: JSON.stringify({}),
 				success: function(response) {
 					console.log("Device upgrading, should reboot at any moment...");
+					//$("#paramVersionUpgradeButton").button("enable");
 				}
 			});
 		});			
+		$("#paramWifiUpdateButton").button();
+		$("#paramVersionUpgradeButton").button();
 		$('#param_wifi_ssid').keyboard();
 		$('#param_wifi_key').keyboard();
 		$(".paramButton").show();
