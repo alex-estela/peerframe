@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import fr.estela.peerframe.api.model.Event.TypeEnum;
 import fr.estela.peerframe.device.entity.ProviderEntity;
@@ -19,7 +18,6 @@ import fr.estela.peerframe.device.repository.ProviderRepository;
 import fr.estela.peerframe.device.util.EventCache;
 
 @Component
-@Transactional
 public class DownloadService {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadService.class);
@@ -57,7 +55,6 @@ public class DownloadService {
             try {
                 LOGGER.info("Triggering Download Service...");
                 currentTask.cancel();
-                Thread.sleep(10000);
                 currentTask = new DownloadTimerTask();
                 timer.schedule(currentTask, 0, RUN_PERIOD);
                 LOGGER.info("Triggering Download Service OK");
@@ -75,7 +72,6 @@ public class DownloadService {
         public void run() {
             providerInProgress = null;
             try {
-                providerRepository.flush();
                 List<ProviderEntity> providerEntities = providerRepository.findAll();
                 LOGGER.info("Download loop initiated with {} providers", providerEntities.size());
                 for (final ProviderEntity providerEntity : providerEntities) {
