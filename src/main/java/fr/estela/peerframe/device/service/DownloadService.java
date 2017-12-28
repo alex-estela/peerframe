@@ -74,6 +74,7 @@ public class DownloadService {
         public void run() {
             providerInProgress = null;
             try {
+                providerRepository.flush();
                 List<ProviderEntity> providerEntities = providerRepository.findAll();
                 LOGGER.info("Download loop initiated with {} providers", providerEntities.size());
                 for (final ProviderEntity providerEntity : providerEntities) {
