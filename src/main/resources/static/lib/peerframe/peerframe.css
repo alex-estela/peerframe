@@ -39,7 +39,7 @@ body {
 	display: none;
 	height: 40px;
 	width: 40px;
-	background: url(param.png) no-repeat center center;
+	background: url(images/param.png) no-repeat center center;
 }
 .paramTable td { 
  padding: 0px 15px 5px 0px;
@@ -48,7 +48,7 @@ body {
 .loadingContainer {
 	width: 100%;
 	min-height: 480px;
-	background: url(hourglass.png) no-repeat center center;
+	background: url(images/hourglass.png) no-repeat center center;
 	align: center;
 	margin: auto;
 	text-align: center;
@@ -78,5 +78,5 @@ body {
 #paramCloseButton {
 	min-width: 34px;
 	min-height: 34px;
-	background: url(close.png) no-repeat center center;
+	background: url(images/close.png) no-repeat center center;
 }

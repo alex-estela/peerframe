@@ -186,29 +186,21 @@ var PEERFRAME = {
 		});
 		$("#paramDialogInner").tabs({
 		    create: function(e, ui) {
+				$("#paramCloseButton").button();
+				$("#paramCloseButton").css("padding","0px");
+				$("#paramCloseButton").css("border","0px");
 		        $('#paramCloseButton').on("click", function() {
 		        	PEERFRAME.paramDialogObj.dialog('close');
 		        });
 		    }
 		});
-		$(".paramButton").on("click", function() {
-			$.ajax({
-				type: "GET",
-				url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI,
-				dataType: "json",
-				success: function(response) {
-					$("#param_wifi_ssid").val(response.wifiSSID);
-					$("#param_wifi_key").val(response.wifiKey);
-					$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
-					$("#param_wifi_ip").html(response.localIP);
-					$("#param_version").html(response.applicationVersion);
-					PEERFRAME.paramDialogObj.dialog("open");
-				}
-			});
-		});
+		$('#param_wifi_ssid').keyboard();
+		$('#param_wifi_key').keyboard();
+		$("#paramWifiUpdateButton").button();
 		$("#paramWifiUpdateButton").on("click", function() {
 			if (PEERFRAME.paramUpdateInProgress) return;
 			PEERFRAME.paramUpdateInProgress = true;
+			$("#paramCloseButton").button("disable");
 			$("#paramWifiUpdateButton").button("disable");
 			$("#paramVersionUpgradeButton").button("disable");
 			$("#param_wifi_connected").html("checking");	
@@ -231,15 +223,18 @@ var PEERFRAME = {
 					$("#param_wifi_key").val(response.wifiKey);
 					$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
 					$("#param_wifi_ip").html(response.localIP);	
+					$("#paramCloseButton").button("enable");
 					$("#paramWifiUpdateButton").button("enable");
 					$("#paramVersionUpgradeButton").button("enable");
 					PEERFRAME.paramUpdateInProgress = false;
 				}
 			});
 		});	
+		$("#paramVersionUpgradeButton").button();
 		$("#paramVersionUpgradeButton").on("click", function() {
 			if (PEERFRAME.paramUpdateInProgress) return;
 			PEERFRAME.paramUpdateInProgress = true;
+			$("#paramCloseButton").button("disable");
 			$("#paramWifiUpdateButton").button("disable");
 			$("#paramVersionUpgradeButton").button("disable");		
 			$("#param_version").html("upgrading, please wait");	
@@ -257,11 +252,22 @@ var PEERFRAME = {
 				}
 			});
 		});			
-		$("#paramWifiUpdateButton").button();
-		$("#paramVersionUpgradeButton").button();
-		$('#param_wifi_ssid').keyboard();
-		$('#param_wifi_key').keyboard();
 		$(".paramButton").show();
+		$(".paramButton").on("click", function() {
+			$.ajax({
+				type: "GET",
+				url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI,
+				dataType: "json",
+				success: function(response) {
+					$("#param_wifi_ssid").val(response.wifiSSID);
+					$("#param_wifi_key").val(response.wifiKey);
+					$("#param_wifi_connected").html((response.internetConnected ? "true" : "false"));
+					$("#param_wifi_ip").html(response.localIP);
+					$("#param_version").html(response.applicationVersion);
+					PEERFRAME.paramDialogObj.dialog("open");
+				}
+			});
+		});
 	}
 };
 
