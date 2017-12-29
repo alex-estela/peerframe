@@ -76,7 +76,7 @@ public class DownloadService {
     }
     
     @Component
-    @Transactional(propagation=Propagation.REQUIRES_NEW, isolation=Isolation.READ_UNCOMMITTED)    
+    @Transactional(isolation=Isolation.READ_UNCOMMITTED)    
     public class DownloadLoopInnerService {
         
         @Autowired
