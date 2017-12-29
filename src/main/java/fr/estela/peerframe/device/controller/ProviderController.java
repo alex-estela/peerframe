@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +29,7 @@ import fr.estela.peerframe.api.model.SmugmugProvider;
 
 @Controller
 @RequestMapping(value = "/api")
-@Transactional(isolation=Isolation.READ_UNCOMMITTED)    
+@Transactional
 public class ProviderController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProviderController.class);

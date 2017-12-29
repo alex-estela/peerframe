@@ -54,7 +54,7 @@ public class DownloadService {
                 LOGGER.info("Triggering Download Service...");
                 currentTask.cancel();
                 currentTask = new DownloadTimerTask();
-                timer.schedule(currentTask, 0, RUN_PERIOD);
+                timer.schedule(currentTask, INITIAL_DELAY, RUN_PERIOD);
                 LOGGER.info("Triggering Download Service OK");
                 alreadyQueued = true;
             }
@@ -76,7 +76,7 @@ public class DownloadService {
     }
     
     @Component
-    @Transactional(isolation=Isolation.READ_UNCOMMITTED)    
+    @Transactional(propagation=Propagation.REQUIRES_NEW, isolation=Isolation.READ_UNCOMMITTED)    
     public class DownloadLoopInnerService {
         
         @Autowired
