@@ -10,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,17 +32,8 @@ public class DownloadService {
     private boolean alreadyQueued = false;
     private String providerInProgress = null;
     
-    @Autowired 
-    private ApplicationContext applicationContext;
-    
     @Autowired
-    private MediaRepository mediaRepository;
-
-    @Autowired
-    private ProviderRepository providerRepository;
-
-    @Autowired
-    private EventCache eventCache;
+    private ApplicationContext context;
     
     public String getProviderInProgress() {
         return providerInProgress;
@@ -53,7 +42,7 @@ public class DownloadService {
     @PostConstruct
     public void initService() {
         LOGGER.info("Starting Download Service...");
-        currentTask = applicationContext.getBean(DownloadTimerTask.class);
+        currentTask = new DownloadTimerTask();
         timer.schedule(currentTask, INITIAL_DELAY, RUN_PERIOD);
         LOGGER.info("Starting Download Service OK");
     }
@@ -63,7 +52,7 @@ public class DownloadService {
             try {
                 LOGGER.info("Triggering Download Service...");
                 currentTask.cancel();
-                currentTask = applicationContext.getBean(DownloadTimerTask.class);
+                currentTask = new DownloadTimerTask();
                 timer.schedule(currentTask, 0, RUN_PERIOD);
                 LOGGER.info("Triggering Download Service OK");
                 alreadyQueued = true;
@@ -75,13 +64,30 @@ public class DownloadService {
         else LOGGER.info("Ignoring Download Service trigger as there is already one queued");
     }
 
-    @Component
-    @Scope("prototype")
-    @Transactional(propagation=Propagation.REQUIRES_NEW)
     public class DownloadTimerTask extends TimerTask {
         @Override
         public void run() {
-            providerInProgress = null;
+            //providerInProgress = null;
+            ((DownloadLoopInnerService)context.getBean(DownloadLoopInnerService.class)).triggerService();
+            alreadyQueued = false;
+            //providerInProgress = null;
+        }
+    }
+    
+    @Component
+    @Transactional(propagation=Propagation.REQUIRES_NEW)    
+    public class DownloadLoopInnerService {
+        
+        @Autowired
+        private MediaRepository mediaRepository;
+
+        @Autowired
+        private ProviderRepository providerRepository;
+
+        @Autowired
+        private EventCache eventCache;
+        
+        public void triggerService() {
             try {
                 List<ProviderEntity> providerEntities = providerRepository.findAll();
                 LOGGER.info("Download loop initiated with {} provider(s)", providerEntities.size());
@@ -95,17 +101,15 @@ public class DownloadService {
                         }
                     }
                     catch (Exception e) {
-                        eventCache.addEvent(e.getClass() + ": " + e.getMessage(), TypeEnum.ERROR);
-                        LOGGER.error("Download failed", e);
+                        eventCache.addEvent(providerEntity + ": " + e.getClass() + ": " + e.getMessage(), TypeEnum.ERROR);
+                        LOGGER.error("Download failed for provider " + providerEntity, e);
                     }
                 }
                 LOGGER.info("Download loop completed");
             }
             catch(Exception e) {
-                LOGGER.error("Download failed", e);                
+                LOGGER.error("Download loop failed", e);                
             }
-            alreadyQueued = false;
-            providerInProgress = null;
         }
     }
 
