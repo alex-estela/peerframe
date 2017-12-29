@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,7 +76,7 @@ public class DownloadService {
     }
     
     @Component
-    @Transactional(propagation=Propagation.REQUIRES_NEW)    
+    @Transactional(propagation=Propagation.REQUIRES_NEW, isolation=Isolation.READ_UNCOMMITTED)    
     public class DownloadLoopInnerService {
         
         @Autowired
@@ -102,7 +103,7 @@ public class DownloadService {
                     }
                     catch (Exception e) {
                         eventCache.addEvent(providerEntity + ": " + e.getClass() + ": " + e.getMessage(), TypeEnum.ERROR);
-                        LOGGER.error("Download failed for provider " + providerEntity, e);
+                        LOGGER.error("Download failed for: " + providerEntity, e);
                     }
                 }
                 LOGGER.info("Download loop completed");
