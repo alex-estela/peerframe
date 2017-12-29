@@ -189,7 +189,8 @@ var PEERFRAME = {
 				$("#paramCloseButton").button();
 				$("#paramCloseButton").css("padding","0px");
 				$("#paramCloseButton").css("border","0px");
-		        $('#paramCloseButton').on("click", function() {
+		        $('#paramCloseButton').on("click", function(event) {
+					event.stopImmediatePropagation();
 		        	PEERFRAME.paramDialogObj.dialog('close');
 		        });
 		    }
@@ -253,7 +254,8 @@ var PEERFRAME = {
 			});
 		});			
 		$(".paramButton").show();
-		$(".paramButton").on("click", function() {
+		$(".paramButton").on("click", function(event) {
+			event.stopImmediatePropagation();
 			$.ajax({
 				type: "GET",
 				url: PEERFRAME.backendCtxRoot + PEERFRAME.deviceSetupURI,

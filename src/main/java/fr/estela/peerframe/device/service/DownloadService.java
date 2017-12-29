@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import fr.estela.peerframe.api.model.Event.TypeEnum;
 import fr.estela.peerframe.device.entity.ProviderEntity;
@@ -69,11 +71,12 @@ public class DownloadService {
 
     public class DownloadTimerTask extends TimerTask {
         @Override
+        @Transactional(propagation=Propagation.REQUIRES_NEW)
         public void run() {
             providerInProgress = null;
             try {
                 List<ProviderEntity> providerEntities = providerRepository.findAll();
-                LOGGER.info("Download loop initiated with {} providers", providerEntities.size());
+                LOGGER.info("Download loop initiated with {} provider(s)", providerEntities.size());
                 for (final ProviderEntity providerEntity : providerEntities) {
                     try {
                         if (providerRepository.findOne(providerEntity.getId()) != null) { // check that the entity still exists at this point
