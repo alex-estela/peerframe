@@ -20,6 +20,7 @@ import fr.estela.peerframe.device.repository.ProviderRepository;
 import fr.estela.peerframe.device.util.EventCache;
 
 @Component
+@Transactional(propagation=Propagation.REQUIRES_NEW)
 public class DownloadService {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadService.class);
@@ -71,7 +72,6 @@ public class DownloadService {
 
     public class DownloadTimerTask extends TimerTask {
         @Override
-        @Transactional(propagation=Propagation.REQUIRES_NEW)
         public void run() {
             providerInProgress = null;
             try {
