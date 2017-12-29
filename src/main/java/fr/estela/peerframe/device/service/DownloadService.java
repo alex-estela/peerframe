@@ -9,6 +9,9 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +23,6 @@ import fr.estela.peerframe.device.repository.ProviderRepository;
 import fr.estela.peerframe.device.util.EventCache;
 
 @Component
-@Transactional(propagation=Propagation.REQUIRES_NEW)
 public class DownloadService {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadService.class);
@@ -31,6 +33,9 @@ public class DownloadService {
     private DownloadTimerTask currentTask;
     private boolean alreadyQueued = false;
     private String providerInProgress = null;
+    
+    @Autowired 
+    private ApplicationContext applicationContext;
     
     @Autowired
     private MediaRepository mediaRepository;
@@ -48,7 +53,7 @@ public class DownloadService {
     @PostConstruct
     public void initService() {
         LOGGER.info("Starting Download Service...");
-        currentTask = new DownloadTimerTask();
+        currentTask = applicationContext.getBean(DownloadTimerTask.class);
         timer.schedule(currentTask, INITIAL_DELAY, RUN_PERIOD);
         LOGGER.info("Starting Download Service OK");
     }
@@ -58,7 +63,7 @@ public class DownloadService {
             try {
                 LOGGER.info("Triggering Download Service...");
                 currentTask.cancel();
-                currentTask = new DownloadTimerTask();
+                currentTask = applicationContext.getBean(DownloadTimerTask.class);
                 timer.schedule(currentTask, 0, RUN_PERIOD);
                 LOGGER.info("Triggering Download Service OK");
                 alreadyQueued = true;
@@ -70,6 +75,9 @@ public class DownloadService {
         else LOGGER.info("Ignoring Download Service trigger as there is already one queued");
     }
 
+    @Component
+    @Scope("prototype")
+    @Transactional(propagation=Propagation.REQUIRES_NEW)
     public class DownloadTimerTask extends TimerTask {
         @Override
         public void run() {
