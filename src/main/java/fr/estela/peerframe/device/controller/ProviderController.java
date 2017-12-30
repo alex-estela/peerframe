@@ -141,7 +141,7 @@ public class ProviderController extends AbstractController {
 
         ProviderEntity providerEntity = toProviderEntity(provider);
         providerEntity.setId(UUID.fromString(providerId));
-        providerRepository.saveAndFlush(providerEntity);
+        providerRepository.save(providerEntity);
         LOGGER.info("Updated provider: {}", providerEntity);
 
         downloadService.triggerService();

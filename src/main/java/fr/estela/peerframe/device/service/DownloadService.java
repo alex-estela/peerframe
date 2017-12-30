@@ -9,10 +9,7 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import fr.estela.peerframe.api.model.Event.TypeEnum;
@@ -22,6 +19,7 @@ import fr.estela.peerframe.device.repository.ProviderRepository;
 import fr.estela.peerframe.device.util.EventCache;
 
 @Component
+@Transactional
 public class DownloadService {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadService.class);
@@ -34,7 +32,13 @@ public class DownloadService {
     private String providerInProgress = null;
     
     @Autowired
-    private ApplicationContext context;
+    private MediaRepository mediaRepository;
+
+    @Autowired
+    private ProviderRepository providerRepository;
+
+    @Autowired
+    private EventCache eventCache;
     
     public String getProviderInProgress() {
         return providerInProgress;
@@ -68,27 +72,7 @@ public class DownloadService {
     public class DownloadTimerTask extends TimerTask {
         @Override
         public void run() {
-            //providerInProgress = null;
-            ((DownloadLoopInnerService)context.getBean(DownloadLoopInnerService.class)).triggerService();
-            alreadyQueued = false;
-            //providerInProgress = null;
-        }
-    }
-    
-    @Component
-    @Transactional(propagation=Propagation.REQUIRES_NEW, isolation=Isolation.READ_UNCOMMITTED)    
-    public class DownloadLoopInnerService {
-        
-        @Autowired
-        private MediaRepository mediaRepository;
-
-        @Autowired
-        private ProviderRepository providerRepository;
-
-        @Autowired
-        private EventCache eventCache;
-        
-        public void triggerService() {
+            providerInProgress = null;
             try {
                 List<ProviderEntity> providerEntities = providerRepository.findAll();
                 LOGGER.info("Download loop initiated with {} provider(s)", providerEntities.size());
@@ -102,15 +86,17 @@ public class DownloadService {
                         }
                     }
                     catch (Exception e) {
-                        eventCache.addEvent(providerEntity + ": " + e.getClass() + ": " + e.getMessage(), TypeEnum.ERROR);
-                        LOGGER.error("Download failed for: " + providerEntity, e);
+                        eventCache.addEvent(e.getClass() + ": " + e.getMessage(), TypeEnum.ERROR);
+                        LOGGER.error("Download failed", e);
                     }
                 }
                 LOGGER.info("Download loop completed");
             }
             catch(Exception e) {
-                LOGGER.error("Download loop failed", e);                
+                LOGGER.error("Download failed", e);                
             }
+            alreadyQueued = false;
+            providerInProgress = null;
         }
     }
 
