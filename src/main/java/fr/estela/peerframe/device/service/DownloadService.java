@@ -86,14 +86,14 @@ public class DownloadService {
                         }
                     }
                     catch (Exception e) {
-                        eventCache.addEvent(e.getClass() + ": " + e.getMessage(), TypeEnum.ERROR);
-                        LOGGER.error("Download failed", e);
+                        eventCache.addEvent(providerEntity + ": " + e.getClass() + ": " + e.getMessage(), TypeEnum.ERROR);
+                        LOGGER.error("Download failed for: " + providerEntity, e);
                     }
                 }
                 LOGGER.info("Download loop completed");
             }
             catch(Exception e) {
-                LOGGER.error("Download failed", e);                
+                LOGGER.error("Download loop failed", e);                
             }
             alreadyQueued = false;
             providerInProgress = null;
