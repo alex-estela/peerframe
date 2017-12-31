@@ -26,4 +26,8 @@ public abstract class AbstractController {
     public ResponseEntity<Void> populateDeletedResponse() {
         return populateResponse(204, null);
     }
+    
+    public <T> ResponseEntity<T> populateNotFoundResponse() {
+        return populateResponse(404, null);
+    }
 }

@@ -52,12 +52,13 @@ public class MediaController extends AbstractController {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    @RequestMapping(value = "/medias/{mediaId}", produces = { "application/json", "image/jpeg", "image/gif",
-        "image/png" }, method = RequestMethod.GET)
+    @RequestMapping(value = "/medias/{mediaId}", produces = { "application/json", "image/jpeg", "image/png" }, method = RequestMethod.GET)
     public ResponseEntity<Media> mediasMediaIdGet(HttpServletRequest request, @PathVariable("mediaId") String mediaId)
         throws APIException {
 
         MediaEntity mediaEntity = mediaRepository.findOne(UUID.fromString(mediaId));
+        if (mediaEntity == null) return populateNotFoundResponse();
+        
         String requestMediaType = request.getHeader("Accept");
         ResponseEntity response = null;
 
