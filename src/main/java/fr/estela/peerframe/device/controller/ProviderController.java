@@ -154,7 +154,8 @@ public class ProviderController extends AbstractController {
 
         List<MediaEntity> medias = mediaRepository.findByProviderId(UUID.fromString(providerId));
         for (MediaEntity media : medias) {
-            mediaRepository.delete(media);
+            mediaRepository.delete(media.getId());
+            mediaRepository.flush();
         }
         LOGGER.info("Deleted {} medias", medias.size());
         
