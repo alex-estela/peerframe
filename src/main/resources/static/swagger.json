@@ -88,6 +88,12 @@
 						"name": "providerId",
 						"type": "string",
 						"required": true
+					},
+					{
+						"in": "query",
+						"name": "purgeMediasOnly",
+						"type": "boolean",
+						"required": false
 					}
 				],
 				"responses": {

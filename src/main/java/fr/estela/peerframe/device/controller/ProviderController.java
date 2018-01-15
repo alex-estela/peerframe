@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import fr.estela.peerframe.api.model.GooglePhotosProvider;
 import fr.estela.peerframe.api.model.Provider;
@@ -150,7 +151,7 @@ public class ProviderController extends AbstractController {
     }
 
     @RequestMapping(value = "/providers/{providerId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> providersProviderIdDelete(@PathVariable("providerId") String providerId) {
+    public ResponseEntity<Void> providersProviderIdDelete(@PathVariable("providerId") String providerId, @RequestParam("purgeMediasOnly") Boolean purgeMediasOnly) {
 
         List<MediaEntity> medias = mediaRepository.findByProviderId(UUID.fromString(providerId));
         for (MediaEntity media : medias) {
@@ -159,10 +160,10 @@ public class ProviderController extends AbstractController {
         }
         LOGGER.info("Deleted {} medias", medias.size());
         
-        providerRepository.delete(UUID.fromString(providerId));
-        LOGGER.info("Deleted provider with id: {}", providerId);
-
-        downloadService.triggerService();
+        if (purgeMediasOnly == null || !purgeMediasOnly.booleanValue()) {
+            providerRepository.delete(UUID.fromString(providerId));
+            LOGGER.info("Deleted provider with id: {}", providerId);
+        }
         
         return populateDeletedResponse();
     }

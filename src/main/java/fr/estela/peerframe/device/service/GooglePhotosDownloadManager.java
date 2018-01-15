@@ -162,7 +162,7 @@ public class GooglePhotosDownloadManager extends AbstractDownloadManager {
                     int remoteWidth = Integer.valueOf(photoFeed.getWidth().toString());
                     int remoteHeight = Integer.valueOf(photoFeed.getHeight().toString());
                     Date originallyCreated = photoFeed.getTimestamp();
-                    String photoURL = photoFeed.getMediaContents().get(0).getUrl();                    
+                    String photoURL = photoFeed.getMediaContents().get(0).getUrl();
 
                     LOGGER.debug("Downloading {}", photoURL);
                     HttpRequest contentRequest = REQUESTFACTORY.buildGetRequest(new GenericUrl(photoURL));

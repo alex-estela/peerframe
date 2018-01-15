@@ -54,7 +54,7 @@ public abstract class AbstractDownloadManager {
         Files.copy(contentStream, originalPathObj);
         contentStream.close();
 
-        String cmd = "convert-peerframe -resize x800 " + originalPath + " " + convertedPath;
+        String cmd = "convert-peerframe -auto-orient -resize x800 " + originalPath + " " + convertedPath;
         logger.debug("> converting to {}", convertedPath);
         logger.debug("> running: {}", cmd);
 
