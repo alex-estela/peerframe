@@ -125,7 +125,7 @@ public class SmugmugDownloadManager extends AbstractDownloadManager {
 
                 JsonNode fileNode = i1.next();
 
-                String remoteId = fileNode.get("ImageKey").textValue();
+                String remoteId = fileNode.get("ImageKey").textValue();                
                 Date lastUpdated = DATE_FORMAT.parse(fileNode.get("LastUpdated").textValue());
                 String type = fileNode.get("Format").textValue().trim().toLowerCase();
                 int remoteWidth = fileNode.get("OriginalWidth").intValue();
@@ -164,7 +164,19 @@ public class SmugmugDownloadManager extends AbstractDownloadManager {
                     HttpResponse contentResponse = contentRequest.execute();
                     InputStream contentStream = contentResponse.getContent();
 
-                    LOGGER.debug("> downloaded Smugmug {} {}", mediaEntity.getMediaType(), mediaEntity.getRemoteId());
+                    LOGGER.debug("> downloaded Smugmug {}", remoteId);
+                    
+                    try {
+                        double latitude = imageMetaNode.get("Latitude").doubleValue();
+                        double longitude = imageMetaNode.get("Longitude").doubleValue();
+                        if (!(latitude == 0 && longitude == 0)) {
+                            mediaEntity.setLocationLatitude(latitude);
+                            mediaEntity.setLocationLongitude(longitude);
+                        }
+                    }
+                    catch(Exception e) {
+                        LOGGER.error(e.getMessage(), e);
+                    }
 
                     resizeAndSaveMedia(LOGGER, mediaEntity, smugmugProviderEntity, mediaRepository, remoteId,
                         remoteWidth, remoteHeight, originallyCreated, lastUpdated, getMediaTypeFromJsonValue(LOGGER, type),

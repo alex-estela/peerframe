@@ -163,12 +163,19 @@ public class GooglePhotosDownloadManager extends AbstractDownloadManager {
                     int remoteHeight = Integer.valueOf(photoFeed.getHeight().toString());
                     Date originallyCreated = photoFeed.getTimestamp();
                     String photoURL = photoFeed.getMediaContents().get(0).getUrl();
-
+                    
                     LOGGER.debug("Downloading {}", photoURL);
                     HttpRequest contentRequest = REQUESTFACTORY.buildGetRequest(new GenericUrl(photoURL));
                     HttpResponse contentResponse = contentRequest.execute();
                     InputStream contentStream = contentResponse.getContent();
                     String type = contentResponse.getContentType();
+                    
+                    if (photoFeed.getGeoLocation() != null
+                        && photoFeed.getGeoLocation().getLatitude() != null
+                        && photoFeed.getGeoLocation().getLongitude() != null) {
+                        mediaEntity.setLocationLatitude(photoFeed.getGeoLocation().getLatitude());
+                        mediaEntity.setLocationLongitude(photoFeed.getGeoLocation().getLongitude());
+                    }
                     
                     resizeAndSaveMedia(LOGGER, mediaEntity, googlePhotosProviderEntity, mediaRepository, remoteId,
                         remoteWidth, remoteHeight, originallyCreated, new Date(), getMediaTypeFromJsonValue(LOGGER, type),

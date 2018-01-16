@@ -363,6 +363,10 @@
 				"created": {
 					"type": "string",
 					"description": "Original date of creation in ISO 8601 format."
+				},
+				"location": {
+					"type": "string",
+					"description": "Location extracted from exif coordinates."
 				}
 			}
 		},

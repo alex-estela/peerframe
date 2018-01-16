@@ -151,7 +151,7 @@ public class ProviderController extends AbstractController {
     }
 
     @RequestMapping(value = "/providers/{providerId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> providersProviderIdDelete(@PathVariable("providerId") String providerId, @RequestParam("purgeMediasOnly") Boolean purgeMediasOnly) {
+    public ResponseEntity<Void> providersProviderIdDelete(@PathVariable("providerId") String providerId, @RequestParam(name="purgeMediasOnly",required=false) Boolean purgeMediasOnly) {
 
         List<MediaEntity> medias = mediaRepository.findByProviderId(UUID.fromString(providerId));
         for (MediaEntity media : medias) {

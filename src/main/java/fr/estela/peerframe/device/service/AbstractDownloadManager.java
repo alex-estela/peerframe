@@ -7,7 +7,15 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.UUID;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.estela.peerframe.api.model.Media.MediaTypeEnum;
 import fr.estela.peerframe.device.Application;
@@ -17,12 +25,71 @@ import fr.estela.peerframe.device.entity.MediaEntity;
 import fr.estela.peerframe.device.entity.ProviderEntity;
 import fr.estela.peerframe.device.repository.MediaRepository;
 import fr.estela.peerframe.device.repository.ProviderRepository;
+import fr.estela.peerframe.device.util.ParsingUtil;
 import fr.estela.peerframe.device.util.StreamGobbler;
 
 public abstract class AbstractDownloadManager {
 
+    private static final String OPENSTREEMATP_QUERY = "http://nominatim.openstreetmap.org/reverse?format=json&lat=%s&lon=%s&zoom=18&addressdetails=1";
+    
     public abstract void downloadAndSaveMedias(ProviderEntity providerEntity, ProviderRepository providerRepository, MediaRepository mediaRepository) throws Exception; 
 
+    private class Location {
+
+        private String city;
+        private String country;
+
+        public String getCity() {
+            return city;
+        }
+
+        public String getCountry() {
+            return country;
+        }
+    }
+
+    private Location getLocationFromCoordinates(Logger logger, double latitude, double longitude) {
+
+        try {
+            
+            String url = String.format(OPENSTREEMATP_QUERY, latitude, longitude);
+            HttpClient client = HttpClientBuilder.create().build();
+            HttpGet request = new HttpGet(url);
+            request.setHeader("Accept-Language", "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7"); // required to get full city names         
+            HttpResponse response = client.execute(request);
+            String json = EntityUtils.toString(response.getEntity());
+            
+            ParsingUtil.printPrettyJson(logger, json);
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(json);
+
+            JsonNode addressNode = rootNode.path("address");
+            if (!ParsingUtil.jsonNodeExists(addressNode)) {
+                logger.error("OpenStreetMap error: missing address node");
+                return null;
+            }
+
+            JsonNode cityNode = addressNode.path("city");
+            JsonNode townNode = addressNode.path("town");
+            JsonNode countryNode = addressNode.path("country");
+            
+            Location location = null;
+            if (ParsingUtil.jsonNodeExists(cityNode) || ParsingUtil.jsonNodeExists(townNode) || ParsingUtil.jsonNodeExists(countryNode)) {
+                location = new Location();
+                location.city = ParsingUtil.jsonNodeExists(cityNode) ? cityNode.asText() : (ParsingUtil.jsonNodeExists(townNode) ? townNode.asText() : null);
+                location.country = ParsingUtil.jsonNodeExists(countryNode) ? countryNode.asText() : null;
+                logger.debug("> City: {}", location.city);
+                logger.debug("> Country: {}", location.country);
+            }
+            return location;
+        }
+        catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+    }
+   
     protected MediaTypeEnum getMediaTypeFromJsonValue(Logger logger, String value) {
         if (value.contains("jpg") || value.contains("jpeg")) return MediaTypeEnum.JPG;
         if (value.contains("png")) return MediaTypeEnum.PNG;
@@ -97,6 +164,15 @@ public abstract class AbstractDownloadManager {
         mediaEntity.setId(mediaId);
         mediaEntity.setProvider(providerEntity);
 
+        // try to identify location
+        if (mediaEntity.getLocationLatitude() != null && mediaEntity.getLocationLongitude() != null) {
+            Location location = getLocationFromCoordinates(logger, mediaEntity.getLocationLatitude(), mediaEntity.getLocationLongitude());
+            if (location != null) {
+                mediaEntity.setLocationCity(location.getCity());
+                mediaEntity.setLocationCountry(location.getCountry());
+            }
+        }
+        
         mediaRepository.save(mediaEntity);
     }
 }

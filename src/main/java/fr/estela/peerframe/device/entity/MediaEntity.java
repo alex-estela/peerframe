@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -43,6 +44,18 @@ public class MediaEntity {
 
 	private Date originallyCreated;
 	private Date lastUpdated;
+
+    @Column(name="location_latitude")
+	private Double locationLatitude;
+
+    @Column(name="location_longitude")
+    private Double locationLongitude;
+	
+	@Column(name="location_city")
+	private String locationCity;
+
+    @Column(name="location_country")
+	private String locationCountry;
 	
 	public UUID getId() {
 		return id;
@@ -79,8 +92,32 @@ public class MediaEntity {
 	}
 	public void setLastUpdated(Date lastUpdated) {
 		this.lastUpdated = lastUpdated;
-	}
-	public MediaContentEntity getRemoteContent() {
+	}	
+    public String getLocationCity() {
+        return locationCity;
+    }    
+    public void setLocationCity(String locationCity) {
+        this.locationCity = locationCity;
+    }    
+    public String getLocationCountry() {
+        return locationCountry;
+    }    
+    public void setLocationCountry(String locationCountry) {
+        this.locationCountry = locationCountry;
+    }    
+    public Double getLocationLatitude() {
+        return locationLatitude;
+    }    
+    public void setLocationLatitude(Double locationLatitude) {
+        this.locationLatitude = locationLatitude;
+    }    
+    public Double getLocationLongitude() {
+        return locationLongitude;
+    }    
+    public void setLocationLongitude(Double locationLongitude) {
+        this.locationLongitude = locationLongitude;
+    }
+    public MediaContentEntity getRemoteContent() {
 		return remoteContent;
 	}
 	public void setRemoteContent(MediaContentEntity remoteContent) {

@@ -128,4 +128,13 @@
 
 	</changeSet>
 
+	<changeSet id="002" author="aestela">
+    <addColumn tableName="media">
+        <column name="location_latitude" type="double"/>
+        <column name="location_longitude" type="double"/>
+        <column name="location_city" type="varchar(255)"/>
+        <column name="location_country" type="varchar(255)"/>
+    </addColumn>
+	</changeSet>
+	
 </databaseChangeLog>
