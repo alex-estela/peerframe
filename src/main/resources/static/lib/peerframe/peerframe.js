@@ -77,7 +77,7 @@ var PEERFRAME = {
 						toolTip += " - " + (index) + "/" + response.length;	
 						console.log(toolTip);
 						
-						var html = "<div><img class='mediaImg' width='" + finalWidth + "px' height='" + finalHeight + "px'/>"
+						var html = "<div><div class='mediaSpacer'>&nbsp;</div><img class='mediaImg' width='" + finalWidth + "px' height='" + finalHeight + "px'/>"
 						+ "<div class='mediaTxt' style='height:" + finalHeight + "px'>" + toolTip + "</div></div>";
 						$(".mediaContainer").append(html);
 						

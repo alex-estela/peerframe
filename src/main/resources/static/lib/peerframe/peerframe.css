@@ -20,14 +20,20 @@ body {
 	margin: auto;
 	text-align: center;
 }
+.mediaSpacer {
+	display: inline-block; 
+	width: 20px;
+	min-width: 20px;
+}
 .mediaTxt {
-	color: #fff;
+	color: #ccc;
 	font-family: Helvetica;
 	font-size: 16px;
-	padding-left: 3px;
 	display: inline-block; 
 	writing-mode: vertical-rl; 
 	text-align: center;
+	width: 20px;
+	min-width: 20px;
 }
 .paramButton {
 	position: absolute;
@@ -65,8 +71,8 @@ body {
 #paramDialogInner { border:0; }
 
 .ui-tabs-nav li.ui-tabs-close-button {
-    float: right;
-    margin-top: 3px;
+	float: right;
+	margin-top: 3px;
 }
 
 .paramTable {
