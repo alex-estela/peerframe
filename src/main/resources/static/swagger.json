@@ -364,9 +364,13 @@
 					"type": "string",
 					"description": "Original date of creation in ISO 8601 format."
 				},
-				"location": {
+				"locationCity": {
 					"type": "string",
-					"description": "Location extracted from exif coordinates."
+					"description": "Location city extracted from exif coordinates."
+				},
+				"locationCountry": {
+					"type": "string",
+					"description": "Location country extracted from exif coordinates."
 				}
 			}
 		},

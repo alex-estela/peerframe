@@ -41,6 +41,8 @@ public class MediaController extends AbstractController {
             media.setMediaType(mediaEntity.getMediaType());
             media.setWidth(mediaEntity.getLocalContent().getWidth());
             media.setHeight(mediaEntity.getLocalContent().getHeight());
+            media.setLocationCity(mediaEntity.getLocationCity());
+            media.setLocationCountry(mediaEntity.getLocationCountry());
             media.setCreated(ParsingUtil.toISO8601UTCString(mediaEntity.getOriginallyCreated()));
 
             medias.add(media);
@@ -69,6 +71,8 @@ public class MediaController extends AbstractController {
             media.setMediaType(mediaEntity.getMediaType());
             media.setWidth(mediaEntity.getLocalContent().getWidth());
             media.setHeight(mediaEntity.getLocalContent().getHeight());
+            media.setLocationCity(mediaEntity.getLocationCity());
+            media.setLocationCountry(mediaEntity.getLocationCountry());
             media.setCreated(ParsingUtil.toISO8601UTCString(mediaEntity.getOriginallyCreated()));
 
             response = populateRetrievedResponse(media);

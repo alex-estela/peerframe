@@ -72,12 +72,17 @@ public abstract class AbstractDownloadManager {
 
             JsonNode cityNode = addressNode.path("city");
             JsonNode townNode = addressNode.path("town");
+            JsonNode villageNode = addressNode.path("village");
             JsonNode countryNode = addressNode.path("country");
             
             Location location = null;
-            if (ParsingUtil.jsonNodeExists(cityNode) || ParsingUtil.jsonNodeExists(townNode) || ParsingUtil.jsonNodeExists(countryNode)) {
+            if (ParsingUtil.jsonNodeExists(cityNode) || ParsingUtil.jsonNodeExists(townNode) 
+                || ParsingUtil.jsonNodeExists(villageNode) || ParsingUtil.jsonNodeExists(countryNode)) {
                 location = new Location();
-                location.city = ParsingUtil.jsonNodeExists(cityNode) ? cityNode.asText() : (ParsingUtil.jsonNodeExists(townNode) ? townNode.asText() : null);
+                location.city = ParsingUtil.jsonNodeExists(cityNode) ? cityNode.asText() 
+                    : (ParsingUtil.jsonNodeExists(townNode) ? townNode.asText() : 
+                        (ParsingUtil.jsonNodeExists(villageNode) ? villageNode.asText() : null));
+                if (location.city.contains(",")) location.city = location.city.substring(0, location.city.indexOf(",")).trim();
                 location.country = ParsingUtil.jsonNodeExists(countryNode) ? countryNode.asText() : null;
                 logger.debug("> City: {}", location.city);
                 logger.debug("> Country: {}", location.country);

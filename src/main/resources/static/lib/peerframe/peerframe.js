@@ -17,7 +17,7 @@ var PEERFRAME = {
 	mediaDisplayTime: 8000,
 	retryFrequency: 5000,
 	retryTimeout: 600000,
-	debugMode: true,
+	debugMode: false,
 	trustMode: true,
 	
 	// param mgmt
@@ -48,12 +48,15 @@ var PEERFRAME = {
 						
 					if (PEERFRAME.debugMode) console.log("Found " + response.length + " medias");
 					
+					var index = 1;
 					for (var m in response) {
 						var media = response[m];
 						var id = media.id;
 						var width = media.width;
 						var height = media.height;
 						var creationDate = media.created;
+						var city = media.locationCity;
+						var country = media.locationCountry;
 						var url = PEERFRAME.backendCtxRoot + PEERFRAME.getMediasURI + "/" + id;
 						
 						var finalHeight = $(window).height();
@@ -65,15 +68,24 @@ var PEERFRAME = {
 							ratio = finalWidth / width;
 							finalHeight = height * ratio;
 						}
+						finalWidth = Math.round(finalWidth);
+						finalHeight = Math.round(finalHeight);						
+
+						var toolTip = Date.parse(creationDate.substring(0, 19)).toString("d MMMM yyyy");
+						if (city) toolTip += ", " + city;
+						if (country) toolTip += ", " + country;						
+						toolTip += " - " + (index) + "/" + response.length;	
+						console.log(toolTip);
 						
-						var html = "<img class='mediaImg' width='" + Math.round(finalWidth) + "px' height='" + Math.round(finalHeight) + "px'/>";
+						var html = "<div><img class='mediaImg' width='" + finalWidth + "px' height='" + finalHeight + "px'/>"
+						+ "<div class='mediaTxt' style='height:" + finalHeight + "px'>" + toolTip + "</div></div>";
 						$(".mediaContainer").append(html);
 						
 						$(".mediaImg").last().attr("data-src", url);
-						$(".mediaImg").last().attr("creation-date", creationDate); 
 						if (PEERFRAME.mediaCount == 0) PEERFRAME.loadMedia(0);
 			
 						PEERFRAME.mediaCount++;
+						index++;
 						//if (PEERFRAME.mediaCount > 1) break;
 					}
 					
@@ -94,13 +106,7 @@ var PEERFRAME = {
 								$(".mediaContainer").data("owlCarousel").owl.currentItem : 0;
 							if (PEERFRAME.debugMode) console.log("Displaying " + (current+1) + "/" + total);
 							
-							$(".mediaImg").eq(current).css("visibility", "visible");
-
-							var creationDate = Date.parse($(".mediaImg").eq(current).attr("creation-date").substring(0, 19)).toString("d-MMM-yyyy");
-							var toolTip = creationDate;
-							if (PEERFRAME.debugMode) toolTip += "<br/>" + (current+1) + "/" + total;
-							$(".mediaTooltip").html(toolTip);
-							
+							$(".mediaImg").eq(current).css("visibility", "visible");							
 							if (current > 0) {
 								$(".mediaImg").eq(current-1).css("visibility", "hidden");
 							}
