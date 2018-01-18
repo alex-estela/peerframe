@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.estela.peerframe</groupId>
 	<artifactId>peerframe</artifactId>
-	<version>0.5c</version>
+	<version>0.5d</version>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

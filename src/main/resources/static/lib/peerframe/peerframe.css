@@ -22,8 +22,8 @@ body {
 }
 .mediaSpacer {
 	display: inline-block; 
-	width: 20px;
-	min-width: 20px;
+	width: 21px;
+	min-width: 21px;
 }
 .mediaTxt {
 	color: #ccc;
@@ -32,7 +32,7 @@ body {
 	display: inline-block; 
 	writing-mode: vertical-rl; 
 	text-align: center;
-	width: 20px;
+	word-wrap: break-word;
 	min-width: 20px;
 }
 .paramButton {

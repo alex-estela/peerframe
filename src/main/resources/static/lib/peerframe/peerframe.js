@@ -18,7 +18,7 @@ var PEERFRAME = {
 	retryFrequency: 5000,
 	retryTimeout: 600000,
 	debugMode: false,
-	trustMode: true,
+	trustMode: false,
 	
 	// param mgmt
 	paramDialogObj: null,
@@ -69,8 +69,8 @@ var PEERFRAME = {
 							finalHeight = height * ratio;
 						}
 						finalWidth = Math.round(finalWidth);
-						finalHeight = Math.round(finalHeight);						
-
+						finalHeight = Math.round(finalHeight);
+						
 						var toolTip = Date.parse(creationDate.substring(0, 19)).toString("d MMMM yyyy");
 						if (city) toolTip += ", " + city;
 						if (country) toolTip += ", " + country;						
