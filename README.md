@@ -4,3 +4,4 @@ Features:
 - diaporama
 - automatic download
 - multiple sources
+- swipping photos
